@@ -4,10 +4,6 @@ const { Configuration, OpenAIApi } = require("openai");
 
 const app = express();
 app.use(express.json());
-const cors = require('cors');
-
-// Enable CORS for all routes
-app.use(cors());
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,

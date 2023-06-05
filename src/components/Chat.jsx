@@ -6,6 +6,7 @@ import "./Chat.css";
 import NavBar from "./NavBar";
 import SideNavBar from "./SideNavBar";
 
+
 function ChatBot({ handleLogout }) {
   const [prompt, updatePrompt] = useState(undefined);
   const [loading, setLoading] = useState(false);
@@ -31,7 +32,7 @@ function ChatBot({ handleLogout }) {
         body: JSON.stringify({ prompt }),
       };
 
-      const res = await fetch("http://localhost:5000/ask", requestOptions);
+      const res = await fetch("/api/ask", requestOptions);
 
       if (!res.ok) {
         throw new Error("Something went wrong");
@@ -57,19 +58,23 @@ function ChatBot({ handleLogout }) {
           handleLogout={handleLogout}
         />
         <div className="main-container">
-          <h1>Oxios: </h1>
-          <div className="spotlight__answer">{answer && <p> {answer}</p>}</div>
-          <input
-            type="text"
-            className="spotlight__input"
-            placeholder="Ask me anything..."
-            disabled={loading}
-            style={{
-              backgroundImage: loading ? `url(${loadingGif})` : `url(${lens})`,
-            }}
-            onChange={(e) => updatePrompt(e.target.value)}
-            onKeyDown={(e) => sendPrompt(e)}
-          />
+        <h1>Oxios: </h1>
+        <input
+              type="text"
+              className="spotlight__input"
+              placeholder="Ask me anything..."
+              disabled={loading}
+              style={{
+                backgroundImage: loading
+                  ? `url(${loadingGif})`
+                  : `url(${lens})`,
+              }}
+              onChange={(e) => updatePrompt(e.target.value)}
+              onKeyDown={(e) => sendPrompt(e)}
+            />
+            <div className="spotlight__answer">
+              {answer && <p> {answer}</p>}
+            </div>
         </div>
       </div>
     </div>

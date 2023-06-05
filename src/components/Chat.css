@@ -16,7 +16,6 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  flex-direction: column;
 }
 
 .chat-container .main-content h1 {
@@ -46,7 +45,6 @@
 }
 
 .spotlight__answer {
-  width: 75%;
   min-height: 115px;
   line-height: 1.5em;
   letter-spacing: 0.1px;
@@ -54,10 +52,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  background-color: #0077b6;
-  margin: 1rem;
-  border-radius: 2rem;
 }
 
 .spotlight__answer p::after {
