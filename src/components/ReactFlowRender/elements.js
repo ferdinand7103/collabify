@@ -1,32 +1,32 @@
 export const nodes = [
-    {
-      id: "1",
-      type: "input",
-      data: {
-        label: "Ideas",
-      },
-      position: { x: 250, y: 0 },
-    },
-    {
-      id: "2",
-      data: {
-        label: "Sub-idea 1",
-      },
-      position: { x: 100, y: 100 },
-    },
-    {
-      id: "3",
-      data: {
-        label: "Sub-idea 2",
-      },
-      position: { x: 400, y: 100 },
-      style: {
-        background: "#D6D5E6",
-        color: "#333",
-        border: "1px solid #222138",
-        width: 180,
-      },
-    },
+    // {
+    //   id: "1",
+    //   type: "input",
+    //   data: {
+    //     label: "Ideas",
+    //   },
+    //   position: { x: 250, y: 0 },
+    // },
+    // {
+    //   id: "2",
+    //   data: {
+    //     label: "Sub-idea 1",
+    //   },
+    //   position: { x: 100, y: 100 },
+    // },
+    // {
+    //   id: "3",
+    //   data: {
+    //     label: "Sub-idea 2",
+    //   },
+    //   position: { x: 400, y: 100 },
+    //   style: {
+    //     background: "#D6D5E6",
+    //     color: "#333",
+    //     border: "1px solid #222138",
+    //     width: 180,
+    //   },
+    // },
   ];
   
   export const edges = [

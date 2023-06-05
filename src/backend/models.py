@@ -44,8 +44,8 @@ class Map(Base):
     data = Column(String, index = True, nullable = False)
     x = Column(Integer, index = True, nullable = False)
     y = Column(Integer, index = True, nullable = False)
-    source = Column(Integer, default = 0)
-    target = Column(Integer, default = 0)
+    source = Column(String, default = "")
+    target = Column(String, default = "")
     user_id = Column(Integer, ForeignKey("users.id"), index = True, nullable = False)
     
     owners_ = relationship("Users", back_populates = "maps")

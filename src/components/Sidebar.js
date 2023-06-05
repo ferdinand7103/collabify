@@ -20,7 +20,6 @@ const Sidebar = ({
         const noteId = clickedNote.dataset.noteId;
         setActiveNote(clickedNote.dataset.noteId);
       } else {
-        console.log("Hello")
         setActiveNote(null);
       }
     };
