@@ -65,6 +65,7 @@ class Notes(BaseModel):
 class GetNotes(BaseModel):
     title: str
     body: str
+    time: str
     notes_id: int
 
 class DeleteNotes(BaseModel):

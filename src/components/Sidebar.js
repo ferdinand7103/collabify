@@ -18,8 +18,9 @@ const Sidebar = ({
       const clickedNote = event.target.closest(".sidebar-note");
       if (clickedNote) {
         const noteId = clickedNote.dataset.noteId;
-        setActiveNote(noteId);
+        setActiveNote(clickedNote.dataset.noteId);
       } else {
+        console.log("Hello")
         setActiveNote(null);
       }
     };
@@ -38,7 +39,10 @@ const Sidebar = ({
   }, [setActiveNote]);
 
   useEffect(() => {
-    console.log(activeNote);
+    console.log("Active note changed:", notes);
+  }, [activeNote]);
+
+  useEffect(() => {
     const filteredNotes = notes.filter((note) =>
       note.title.toLowerCase().includes(searchQuery.toLowerCase())
     );

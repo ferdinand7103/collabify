@@ -16,7 +16,7 @@ function Notes({ handleLogout }) {
     const token = localStorage.getItem("token");
     const response = await axios.get(
       "http://localhost:8000/get-notes/",
-      { headers: {Authorization: `Bearer ${token}`} }
+      { headers: { Authorization: `Bearer ${token}` } }
     );
 
     return response.data;
@@ -27,7 +27,7 @@ function Notes({ handleLogout }) {
     data.then(response => {
       const responses = response
 
-      for (var i = 0; i < responses.length; i++){
+      for (var i = 0; i < responses.length; i++) {
         const times = parseInt(responses[i].time)
         const newNote = {
           id: responses[i].notes_id,
@@ -48,12 +48,12 @@ function Notes({ handleLogout }) {
     const response = await axios.post(
       "http://localhost:8000/add-notes/",
       { title: "Untitled Note", body: "", time: dates },
-      { headers: { "content-type": "application/json", Authorization: `Bearer ${token}`} }
+      { headers: { "content-type": "application/json", Authorization: `Bearer ${token}` } }
     );
 
     const responses = await axios.get(
       "http://localhost:8000/get-notes-last/",
-      { headers: {Authorization: `Bearer ${token}`} }
+      { headers: { Authorization: `Bearer ${token}` } }
     );
 
     const todate = parseInt(responses.data.time)
@@ -69,14 +69,17 @@ function Notes({ handleLogout }) {
   };
 
   const onUpdateNote = (updatedNote) => {
-    console.log(updatedNote)
+    if(updatedNote){
     const token = localStorage.getItem("token");
+    const times = "" + updatedNote.lastModified;
 
     const response = axios.put(
       "http://localhost:8000/update-notes/",
-      { title: updatedNote.title, body: updatedNote.body, notes_id: updatedNote.notes_id },
-      { headers: { "content-type": "application/json", Authorization: `Bearer ${token}`} }
+      { title: updatedNote.title, body: updatedNote.body, time: times, notes_id: updatedNote.id },
+      { headers: { "content-type": "application/json", Authorization: `Bearer ${token}` } }
     );
+    console.log(updatedNote)
+
     const updatedNotesArray = notes.map((note) => {
       if (note.id === activeNote) {
         return updatedNote;
@@ -86,13 +89,13 @@ function Notes({ handleLogout }) {
     });
 
     setNotes(updatedNotesArray);
-  };
+  }};
 
   const onDeleteNote = async (idToDelete) => {
     const token = localStorage.getItem("token");
     const response = await fetch("http://localhost:8000/delete-notes/", {
       method: "DELETE",
-      body: JSON.stringify({notes_id: idToDelete}),
+      body: JSON.stringify({ notes_id: idToDelete }),
       headers: {
         "content-type": "application/json",
         Authorization: `Bearer ${token}`
@@ -102,11 +105,38 @@ function Notes({ handleLogout }) {
   };
 
   const getActiveNote = () => {
-    if (show){
+    if (show) {
       showNotes();
       setShow(false);
     }
-    return notes.find((note) => note.id === activeNote);
+
+    const arr = []
+    console.log(notes);
+
+    for (var i = 0; i < notes.length; i++) {
+      // console.log(notes[i].id);
+      // console.log
+      if (notes[i].id == parseInt(activeNote)) {
+        arr.push(notes[i].title);
+        arr.push(notes[i].body);
+        arr.push(notes[i].id);
+      }
+    }
+
+    // notes.find((note) => {
+    //   console.log(note.id);
+    //   console.log(activeNote);
+
+    //   for (var i = 0; i < note.length; i++) {
+    //     if (note.id === activeNote) {
+    //       arr.push(note);
+    //       arr.push(note.id);
+    //     }
+    //   }
+    //   // arr.push(note.id === parseInt(activeNote))
+    // });
+    
+    return arr;
   }; // find the note to send it to the Main component
 
   return (

@@ -1,14 +1,32 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 
 const Main = ({ activeNote, onUpdateNote }) => {
+  const [updatedNote, setUpdatedNote] = useState({
+    title: activeNote ? activeNote[0] : "", // Default to an empty string if activeNote is undefined
+    body: activeNote ? activeNote[1] : "", // Default to an empty string if activeNote is undefined
+    id: activeNote[2],
+    lastModified: Date.now(),
+  });
+
   const onEditField = (key, value) => {
-    onUpdateNote({
-      ...activeNote,
-      [key]: value,
+    setUpdatedNote({
+      ...updatedNote,
+      title: key,
+      body: value,
       lastModified: Date.now(),
     });
   };
+
+  useEffect(() => {
+    console.log(activeNote);
+    const timeout = setTimeout(() => {
+      onUpdateNote(updatedNote);
+      console.log(updatedNote);
+    }, 500000000000); // Adjust the debounce delay as needed (e.g., 500ms)
+
+    return () => clearTimeout(timeout);
+  }, [updatedNote, onUpdateNote]);
 
   if (!activeNote)
     return <div className="no-active-note">No note selected yet</div>;
@@ -18,24 +36,22 @@ const Main = ({ activeNote, onUpdateNote }) => {
         <input
           type="text"
           id="title"
-          value={activeNote.title}
+          value={updatedNote.title}
           placeholder="Title"
-          onChange={(e) => onEditField("title", e.target.value)}
+          onChange={(e) => onEditField(e.target.value, "")}
           autoFocus
         />
         <textarea
           id="body"
-          placeholder={
-            "Write your note here...\n(Use # to make a title, the more of it the smaller  \n**A bold text** \n*An italic text* \n1. An ordered list text \n- An unordered list text \n~~A strikethrough text~~ \nGet to know more at https://www.copycat.dev/blog/react-markdown/)"
-          }
-          value={activeNote.body}
-          onChange={(e) => onEditField("body", e.target.value)}
+          placeholder="Write your note here..."
+          value={updatedNote.body}
+          onChange={(e) => onEditField("", e.target.value)}
         />
       </div>
-      <div className="main-note-preview" style={{ display: "block", maxHeight: "calc(100vh - 300px)", overflowY: "auto" }}>
-        <h1 className="preview-title">{activeNote.title}</h1>
+      <div className="main-note-preview">
+        <h1 className="preview-title">{updatedNote.title}</h1>
         <ReactMarkdown className="markdown-preview">
-          {activeNote.body}
+          {updatedNote.body}
         </ReactMarkdown>
       </div>
     </div>
