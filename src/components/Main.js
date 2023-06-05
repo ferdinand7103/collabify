@@ -36,15 +36,14 @@ const Main = ({ activeNote, onUpdateNote }) => {
         setNote();
         setShow(false);
       }
+      const timeout = setTimeout(() => {
+        onUpdateNote(updatedNote);
+      }, 500); 
+      return () => clearTimeout(timeout);
     } else {
       setShow(true);
     }
-
-    const timeout = setTimeout(() => {
-      onUpdateNote(updatedNote);
-    }, 500); // Adjust the debounce delay as needed (e.g., 500ms)
-
-    return () => clearTimeout(timeout);
+    // Adjust the debounce delay as needed (e.g., 500ms)
   }, [updatedNote, onUpdateNote]);
 
   if (!activeNote[0])

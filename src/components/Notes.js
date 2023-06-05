@@ -95,6 +95,7 @@ function Notes({ handleLogout }) {
   }};
 
   const onDeleteNote = async (idToDelete) => {
+    console.log(idToDelete);
     const token = localStorage.getItem("token");
     const response = await fetch("http://localhost:8000/delete-notes/", {
       method: "DELETE",
