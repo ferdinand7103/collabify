@@ -32,7 +32,7 @@ const SideNavBar = () => {
             <span className="nav-text">Notepad</span>
           </Link>
         </li>
-        <li className={`nav-item ${isActivePage("/collabify/chat") ? "active" : ""}`}>
+        <li className={`nav-item ${isActivePage("/collabify/chatwithai") ? "active" : ""}`}>
           <Link to={"/"} className="nav-link">
             <AiFillRobot className="icon" />
             <span className="nav-text">Chat With Ai</span>

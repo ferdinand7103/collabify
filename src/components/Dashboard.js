@@ -26,7 +26,7 @@ const Dashboard = ({ handleLogout }) => {
           <FontAwesomeIcon icon={faStickyNote} className="dashboard-icon" />
           <span className="dashboard-button-text">Notes</span>
         </Link>
-        <Link to="/collabify/chat" className="dashboard-button-link dashboard-button">
+        <Link to="/chat" className="dashboard-button-link dashboard-button">
           <AiFillRobot className="dashboard-icon" />
           <span className="dashboard-button-text">Chat with AI</span>
         </Link>
