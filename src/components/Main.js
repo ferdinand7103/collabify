@@ -1,34 +1,54 @@
 import React, { useState, useEffect } from "react";
+import { act } from "react-dom/test-utils";
 import ReactMarkdown from "react-markdown";
 
 const Main = ({ activeNote, onUpdateNote }) => {
-  const [updatedNote, setUpdatedNote] = useState({
-    title: activeNote ? activeNote[0] : "", // Default to an empty string if activeNote is undefined
-    body: activeNote ? activeNote[1] : "", // Default to an empty string if activeNote is undefined
-    id: activeNote[2],
-    lastModified: Date.now(),
-  });
+  const [updatedNote, setUpdatedNote] = useState("");
+  const [show, setShow] = useState(true);
+
+  const setNote = () => {
+    setUpdatedNote({
+      title: activeNote[1],
+      body: activeNote[2],
+      id: activeNote[3],
+      lastModified: Date.now()
+    })
+  }
 
   const onEditField = (key, value) => {
-    setUpdatedNote({
-      ...updatedNote,
-      title: key,
-      body: value,
-      lastModified: Date.now(),
-    });
+    if (key === "title") {
+      setUpdatedNote({
+        ...updatedNote,
+        title: value,
+        lastModified: Date.now(),
+      });
+    } else if (key === "body") {
+      setUpdatedNote({
+        ...updatedNote,
+        body: value,
+        lastModified: Date.now(),
+      });
+    }
   };
 
   useEffect(() => {
-    console.log(activeNote);
+    if (activeNote[0]){
+      if(show){
+        setNote();
+        setShow(false);
+      }
+    } else {
+      setShow(true);
+    }
+
     const timeout = setTimeout(() => {
       onUpdateNote(updatedNote);
-      console.log(updatedNote);
-    }, 500000000000); // Adjust the debounce delay as needed (e.g., 500ms)
+    }, 500); // Adjust the debounce delay as needed (e.g., 500ms)
 
     return () => clearTimeout(timeout);
   }, [updatedNote, onUpdateNote]);
 
-  if (!activeNote)
+  if (!activeNote[0])
     return <div className="no-active-note">No note selected yet</div>;
   return (
     <div className="main">
@@ -38,14 +58,14 @@ const Main = ({ activeNote, onUpdateNote }) => {
           id="title"
           value={updatedNote.title}
           placeholder="Title"
-          onChange={(e) => onEditField(e.target.value, "")}
+          onChange={(e) => onEditField("title", e.target.value)}
           autoFocus
         />
         <textarea
           id="body"
           placeholder="Write your note here..."
           value={updatedNote.body}
-          onChange={(e) => onEditField("", e.target.value)}
+          onChange={(e) => onEditField("body", e.target.value)}
         />
       </div>
       <div className="main-note-preview">

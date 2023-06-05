@@ -73,12 +73,15 @@ function Notes({ handleLogout }) {
     const token = localStorage.getItem("token");
     const times = "" + updatedNote.lastModified;
 
+    if (updatedNote.title == undefined || updatedNote.body == undefined || updatedNote.id == undefined){
+      return;
+    }
+
     const response = axios.put(
       "http://localhost:8000/update-notes/",
       { title: updatedNote.title, body: updatedNote.body, time: times, notes_id: updatedNote.id },
       { headers: { "content-type": "application/json", Authorization: `Bearer ${token}` } }
     );
-    console.log(updatedNote)
 
     const updatedNotesArray = notes.map((note) => {
       if (note.id === activeNote) {
@@ -111,30 +114,15 @@ function Notes({ handleLogout }) {
     }
 
     const arr = []
-    console.log(notes);
 
     for (var i = 0; i < notes.length; i++) {
-      // console.log(notes[i].id);
-      // console.log
       if (notes[i].id == parseInt(activeNote)) {
+        arr.push(true);
         arr.push(notes[i].title);
         arr.push(notes[i].body);
         arr.push(notes[i].id);
       }
     }
-
-    // notes.find((note) => {
-    //   console.log(note.id);
-    //   console.log(activeNote);
-
-    //   for (var i = 0; i < note.length; i++) {
-    //     if (note.id === activeNote) {
-    //       arr.push(note);
-    //       arr.push(note.id);
-    //     }
-    //   }
-    //   // arr.push(note.id === parseInt(activeNote))
-    // });
     
     return arr;
   }; // find the note to send it to the Main component
