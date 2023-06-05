@@ -8,6 +8,7 @@ import LandingPage from "./components/LPcomponents/LandingPage";
 import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 import MindMap from "./components/MindMap";
+import ChatBot from "./components/Chat"
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -171,7 +172,12 @@ const App = () => {
           path="collabify/mindmap"
           element={<MindMap handleLogout={handleLogout} />}
         />
+        <Route
+          path="collabify/chat"
+          element={<ChatBot handleLogout={handleLogout} />}
+        />
       </Routes>
+      
     </div>
   );
 };
