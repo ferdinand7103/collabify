@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useEffect } from "react";
 import "./Chat.css";
 import NavBar from "./NavBar";
-import Sidebar from "./Sidebar";
+import SideNavBar from "./SideNavBar";
 
 
-function App() {
+function ChatBot({ handleLogout }) {
   const [prompt, updatePrompt] = useState(undefined);
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState(undefined);
@@ -48,14 +48,18 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <div className="app-container">
-        <div className="navbar">
-          <NavBar welcomeText={"Welcome to your own notepad!"} />
-          <div className="sidebar">
-
-          <div className="spotlight__wrapper">
-            <input
+    <div className="chat-container">
+      <div className="navBarS">
+        <SideNavBar />
+      </div>
+      <div className="main-content">
+        <NavBar
+          welcomeText={"Welcome to your Oxios"}
+          handleLogout={handleLogout}
+        />
+        <div className="main-container">
+        <h1>Oxios: </h1>
+        <input
               type="text"
               className="spotlight__input"
               placeholder="Ask me anything..."
@@ -71,12 +75,10 @@ function App() {
             <div className="spotlight__answer">
               {answer && <p> {answer}</p>}
             </div>
-          </div>
-          </div>
         </div>
       </div>
     </div>
   );
 }
 
-export default App;
+export default ChatBot;
