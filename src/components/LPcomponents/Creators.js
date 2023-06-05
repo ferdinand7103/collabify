@@ -1,6 +1,7 @@
 import React from "react";
 import ceo1 from "./Arish.jpg"
 import ceo2 from "./Dio.jpg"
+import ceo3 from "./Jacques.jpg"
 
 const Creators = () => {
   const creatorsInfoData = [
@@ -15,7 +16,7 @@ const Creators = () => {
       text: "Co-CEO",
     },
     {
-      image: "..",
+      image: ceo3,
       title: "Jacques",
       text: "Co-CEO",
     },

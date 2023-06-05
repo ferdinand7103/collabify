@@ -8,7 +8,7 @@ const Productivity = () => {
         <img src="" alt="" />
       </div>
       <div className="productivity-section-text-container">
-        <p className="primary-subheading">About</p>
+        <p className="primary-subheading">More...</p>
         <h1 className="primary-heading">Enhanced Productivity</h1>
         <p className="primary-text">
           Enhanced productivity refers to the state of achieving higher levels

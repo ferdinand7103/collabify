@@ -333,6 +333,11 @@ body {
   margin: 1rem 2rem;
 }
 
+.creators-section-info .info-boxes-img-container img {
+  width: 15rem;
+  height: 15rem;
+}
+
 .features-section-info .info-boxes-img-container img {
   width: 12rem;
   height: 12rem;

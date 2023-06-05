@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { act } from "react-dom/test-utils";
 import ReactMarkdown from "react-markdown";
 
 const Main = ({ activeNote, onUpdateNote }) => {
@@ -11,9 +10,9 @@ const Main = ({ activeNote, onUpdateNote }) => {
       title: activeNote[1],
       body: activeNote[2],
       id: activeNote[3],
-      lastModified: Date.now()
-    })
-  }
+      lastModified: Date.now(),
+    });
+  };
 
   const onEditField = (key, value) => {
     if (key === "title") {
@@ -32,8 +31,8 @@ const Main = ({ activeNote, onUpdateNote }) => {
   };
 
   useEffect(() => {
-    if (activeNote[0]){
-      if(show){
+    if (activeNote[0]) {
+      if (show) {
         setNote();
         setShow(false);
       }
@@ -63,7 +62,9 @@ const Main = ({ activeNote, onUpdateNote }) => {
         />
         <textarea
           id="body"
-          placeholder="Write your note here..."
+          placeholder={
+            "Write your note here...\n(Use # to make a title, the more of it the smaller  \n**A bold text** \n*An italic text* \n1. An ordered list text \n- An unordered list text \n~~A strikethrough text~~ \nGet to know more at https://www.copycat.dev/blog/react-markdown/)"
+          }
           value={updatedNote.body}
           onChange={(e) => onEditField("body", e.target.value)}
         />
