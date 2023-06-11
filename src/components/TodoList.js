@@ -455,7 +455,7 @@ function TodoList({ handleLogout }) {
           <div className="adding">
             <div className="inputs">
               <div>
-                <label htmlFor="itemName">Item Name: </label>
+                <label htmlFor="itemName" className="name">Item Name: </label>
                 <input
                   type="text"
                   id="itemName"
@@ -470,7 +470,7 @@ function TodoList({ handleLogout }) {
                 />
               </div>
               <div>
-                <label htmlFor="dueDate">Due Date: </label>
+                <label htmlFor="dueDate" className="due-date">Due Date: </label>
                 <input
                   type="date"
                   id="dueDate"

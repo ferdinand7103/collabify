@@ -38,7 +38,7 @@ const Main = ({ activeNote, onUpdateNote }) => {
       }
       const timeout = setTimeout(() => {
         onUpdateNote(updatedNote);
-      }, 500); 
+      }, 5000); 
       return () => clearTimeout(timeout);
     } else {
       setShow(true);

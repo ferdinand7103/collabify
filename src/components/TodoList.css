@@ -1,3 +1,5 @@
+/* Default styles */
+
 body {
   background-color: rgb(51, 44, 44);
 }
@@ -19,6 +21,8 @@ body {
 .TodoList .main-content h1 {
   color: white;
   margin: 10px 10px;
+  font-weight: 800;
+  font-size: 2.5rem;
 }
 
 .TodoList .main-container {
@@ -37,7 +41,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
 }
 
 .adding .inputs {
@@ -46,20 +50,32 @@ body {
 
 .adding label {
   color: white;
+  display: inline-flex;
+  padding: 0.625rem;
+  margin-bottom: 0.625rem;
+  border: 1px solid #ccc;
+  border-radius: 4px 0px 0px 4px;
+  background-color: #194a7a;
+  font-size: 0.95rem;
+}
+
+.adding .due-date {
+  margin-left: 1rem;
 }
 
 .adding input {
+  height: 2.5rem;
   display: inline-flex;
-  padding: 10px;
-  margin-bottom: 10px;
+  padding: 0.625rem;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  margin: 10px;
+  border-radius: 0px 4px 4px 0px;
+  margin: 0.625rem 0px 1rem;
+  font-size: 0.95rem;
 }
 
 .adding button {
-  padding: 10px 20px;
-  background-color: #4c54af;
+  padding: 0.625rem 2.5rem;
+  background-color: #1623bc;
   color: white;
   border: none;
   border-radius: 4px;
@@ -67,7 +83,7 @@ body {
 }
 
 .adding button:hover {
-  background-color: #3b316b;
+  background-color: #151d79;
 }
 
 .main-container .list {
@@ -92,7 +108,7 @@ body {
   background-color: #296eb4;
 }
 
-.main-container .column:nth-child(1) .droppable-col{
+.main-container .column:nth-child(1) .droppable-col {
   background-color: #3589dd;
 }
 
@@ -100,7 +116,7 @@ body {
   background-color: #ff9505;
 }
 
-.main-container .column:nth-child(2) .droppable-col{
+.main-container .column:nth-child(2) .droppable-col {
   background-color: #dc8000;
 }
 
@@ -108,13 +124,13 @@ body {
   background-color: #a5be00;
 }
 
-.main-container .column:nth-child(3) .droppable-col{
+.main-container .column:nth-child(3) .droppable-col {
   background-color: #93a900;
 }
 
 .main-container .column .header-col {
   display: inline-flex;
-  justify-content:space-between;
+  justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid white;
   width: 100%;
@@ -125,18 +141,19 @@ body {
   display: flex;
   justify-content: center;
   color: white;
-  margin: 10px;
+  margin: 0.625rem;
   font-weight: 800;
+  font-size: 1.2rem;
 }
 
 .remove-all {
   background-color: red;
-  padding: 5px;
+  padding: 0.312rem;
   cursor: pointer;
   margin-left: 2rem;
   display: flex;
   justify-content: center;
-  margin: 10px;
+  margin: 0.625rem;
 }
 
 .remove-all:hover {
@@ -149,7 +166,7 @@ body {
 
 .droppable-col {
   max-width: 100%;
-  padding: 10px 10px;
+  padding: 0.625rem 0.625rem;
   border-radius: 7px;
   display: flex;
   flex-direction: column;
@@ -157,10 +174,10 @@ body {
 }
 
 .item {
-  margin: 10px;
+  margin: 0.625rem;
   color: rgb(1, 1, 1);
   border: 1px solid white;
-  padding: 5px;
+  padding: 0.312rem;
   border-radius: 7px;
   background-color: rgba(255, 255, 255, 0.675);
   word-wrap: break-word;
@@ -177,6 +194,10 @@ body {
   background-color: rgba(255, 255, 255);
 }
 
+.content.name {
+  font-weight: 600;
+}
+
 .due-date-passed {
   background-color: rgba(81, 81, 81, 0.625);
 }
@@ -191,10 +212,10 @@ body {
 
 .edit-button,
 .remove-button {
-  margin: 10px;
+  margin: 0.625rem;
   width: 5rem;
   height: 2rem;
-  border-radius: 10px;
+  border-radius: 0.625rem;
   font-size: 0.9rem;
   background-color: #fafafa;
 }
@@ -221,7 +242,7 @@ body {
 
 .edit-confirm,
 .edit-cancel {
-  margin: 5px;
+  margin: 0.312rem;
   padding: 0;
   width: 3rem;
   height: 2.5rem;
@@ -238,3 +259,39 @@ body {
 .edit-cancel:hover {
   background-color: rgb(223, 0, 0);
 }
+
+/* Media Queries */
+
+@media screen and (max-width: 850px) {
+  .TodoList .main-content h1 {
+    font-size: 2rem;
+  }
+  
+  .adding label,
+  .adding input,
+  .adding button {
+    font-size: 0.85rem;
+  }
+  
+  .main-container .column {
+    width: 50%;
+  }
+
+}
+
+@media screen and (max-width: 480px) {
+  .TodoList .main-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .adding label,
+  .adding input,
+  .adding button {
+    font-size: 0.8rem;
+  }
+
+  .main-container {
+    width: 20%;
+  }
+}
+

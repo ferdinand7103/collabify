@@ -5,21 +5,21 @@ import { useEffect } from "react";
 import "./Chat.css";
 import NavBar from "./NavBar";
 import SideNavBar from "./SideNavBar";
-
+import { AiOutlineSearch } from "react-icons/ai";
 
 function ChatBot({ handleLogout }) {
-  const [prompt, updatePrompt] = useState(undefined);
+  const [prompt, updatePrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState(undefined);
 
   useEffect(() => {
-    if (prompt != null && prompt.trim() === "") {
+    if (prompt.trim() === "") {
       setAnswer(undefined);
     }
   }, [prompt]);
 
-  const sendPrompt = async (event) => {
-    if (event.key !== "Enter") {
+  const sendPrompt = async () => {
+    if (prompt.trim() === "") {
       return;
     }
 
@@ -32,7 +32,7 @@ function ChatBot({ handleLogout }) {
         body: JSON.stringify({ prompt }),
       };
 
-      const res = await fetch("/api/ask", requestOptions);
+      const res = await fetch("http://localhost:5000/ask", requestOptions);
 
       if (!res.ok) {
         throw new Error("Something went wrong");
@@ -58,23 +58,36 @@ function ChatBot({ handleLogout }) {
           handleLogout={handleLogout}
         />
         <div className="main-container">
-        <h1>Oxios: </h1>
-        <input
+          <h1>ChatBot Oxios</h1>
+          <div className="chatbox">
+            {loading ? (
+              <p className="chatbox__message">Please standby for the best answer...</p>
+            ) : (
+              answer && <p className="chatbox__message">{answer}</p>
+            )}
+          </div>
+          <div className="input-container">
+            <input
               type="text"
               className="spotlight__input"
               placeholder="Ask me anything..."
               disabled={loading}
-              style={{
-                backgroundImage: loading
-                  ? `url(${loadingGif})`
-                  : `url(${lens})`,
-              }}
+              value={prompt}
               onChange={(e) => updatePrompt(e.target.value)}
-              onKeyDown={(e) => sendPrompt(e)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  sendPrompt();
+                }
+              }}
             />
-            <div className="spotlight__answer">
-              {answer && <p> {answer}</p>}
+            <div className="input-icon" onClick={sendPrompt}>
+              {loading ? (
+                <img src={loadingGif} alt="Loading..." />
+              ) : (
+                <AiOutlineSearch />
+              )}
             </div>
+          </div>
         </div>
       </div>
     </div>

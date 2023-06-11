@@ -121,16 +121,16 @@ const LandingPage = () => {
             anchor="right"
           >
             <Box
-              sx={{ width: 250 }}
+              sx={{ width: 250, height: "100%", backgroundColor: '#333333'}}
               role="presentation"
               onClick={() => setOpenMenu(false)}
               onKeyDown={() => setOpenMenu(false)}
             >
-              <List>
+              <List className="sideMenu">
                 {menuOptions.map((item) => (
-                  <ListItem key={item.text} disablePadding>
+                  <ListItem className="sideMenuItem" key={item.text} disablePadding>
                     <ListItemButton onClick={() => scrollToSection(item.text)}>
-                      <ListItemIcon>{item.icon}</ListItemIcon>
+                      <ListItemIcon >{item.icon}</ListItemIcon>
                       <ListItemText primary={item.text} />
                     </ListItemButton>
                   </ListItem>
