@@ -38,7 +38,7 @@ const Sidebar = ({
   }, [setActiveNote]);
 
   useEffect(() => {
-    console.log("Active note changed:", notes);
+    console.log("Active note changed:", activeNote);
   }, [activeNote]);
 
   useEffect(() => {
@@ -104,7 +104,9 @@ const Sidebar = ({
         {sortedNotes.map((note) => (
           <div
             key={note.id}
-            className={`sidebar-note ${note.id === activeNote ? "active" : ""}`}
+            className={`sidebar-note ${
+              note.id === parseInt(activeNote) ? "active" : ""
+            }`}
             data-note-id={note.id}
           >
             <div className="sidebar-note-title">
