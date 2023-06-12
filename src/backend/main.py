@@ -83,7 +83,7 @@ async def login(
             detail = "Incorrect username or password",
             headers = {"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes = 240)
+    access_token_expires = timedelta(minutes = 300)
     access_token = crud.create_token(
         data={"sub": check_user.email}, expires_delta = access_token_expires
     )
@@ -228,9 +228,9 @@ def update_source(
 ):
     return crud.update_source(session, payload)
 
-@collabify.put("/update-source/", response_model = schemas.MapXY)
+@collabify.put("/update-xy/", response_model = schemas.MapXY)
 def update_source(
-    payload: schemas.MapSource,
+    payload: schemas.MapXY,
     token_data: schemas.TokenData = Depends(get_current_user),
     session: Session = Depends(get_db)
 ):

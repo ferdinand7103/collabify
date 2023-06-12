@@ -73,8 +73,8 @@ class DeleteNotes(BaseModel):
     
 class Map(BaseModel):
     data: str
-    x: int
-    y: int
+    x: float
+    y: float
     
     class Config:
         orm_mode = True
@@ -84,10 +84,16 @@ class MapSource(BaseModel):
     source: str
     target: str
     
+    class Config:
+        orm_mode = True
+    
 class MapXY(BaseModel):
     map_id: int
-    x: int
-    y: int
+    x: float
+    y: float
+    
+    class Config:
+        orm_mode = True
         
 class DeleteMap(BaseModel):
     map_id: int

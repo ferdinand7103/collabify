@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import ReactFlow, {
   addEdge,
   useNodesState,
@@ -20,7 +20,26 @@ function ReactFlowRenderer() {
   const [show, setShow] = useState(true);
 
   const onConnect = useCallback(
-    (params) =>
+    (params) => {
+      // console.log('New edge source:', params);
+      // console.log('New edge target:', typeof params.target);
+      const token = localStorage.getItem("token");
+
+      const response = axios.put(
+        "http://localhost:8000/update-source/",
+        {
+          map_id: params.source,
+          source: params.source,
+          target: params.target
+        },
+        {
+          headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
       setEdges((eds) =>
         addEdge(
           {
@@ -29,20 +48,26 @@ function ReactFlowRenderer() {
             animated: true,
             style: { stroke: "red" },
           },
-          eds
+          eds,
         )
-      ),
+      );
+    },
     [setEdges]
   );
+
+  useEffect(() => {
+    nodes.map((node) => {
+      console.log(node.id)
+    })
+  }, []);
 
   const getNodeId = () => Math.random();
 
   function onInit() {
-    if (show){
+    if (show) {
       showMap();
       setShow(false);
     }
-    console.log("Logged");
   }
 
   function displayCustomNamedNodeModal() {
@@ -58,11 +83,11 @@ function ReactFlowRenderer() {
     setIsModalVisible(false);
   }
 
-  const getMap = async() => {
+  const getMap = async () => {
     const token = localStorage.getItem("token");
     const response = await axios.get(
       "http://localhost:8000/get-map/",
-      { headers: {Authorization: `Bearer ${token}`} }
+      { headers: { Authorization: `Bearer ${token}` } }
     );
 
     return response.data;
@@ -73,7 +98,7 @@ function ReactFlowRenderer() {
     data.then(response => {
       const responses = response
 
-      for (var i = 0; i < responses.length; i++){
+      for (var i = 0; i < responses.length; i++) {
         const id = "" + responses[i].map_id;
         const newNode = {
           id: id,
@@ -84,7 +109,22 @@ function ReactFlowRenderer() {
           },
         };
 
-        console.log(responses)
+        if (responses[i].source !== ""){
+          console.log("e" + responses[i].source + "-" + responses[i].target)
+          const newEdge = {
+            id: "e" + responses[i].source + "-" + responses[i].target,
+            source: responses[i].source,
+            target: responses[i].target,
+            type: "smoothstep",
+            animated: true
+          }
+          
+          setEdges((nds) => addEdge({
+            ...newEdge}, 
+            nds
+            )
+          );
+        }
 
         setNodes((nds) => nds.concat(newNode));
       }
@@ -98,12 +138,12 @@ function ReactFlowRenderer() {
       const response = axios.post(
         "http://localhost:8000/add-map/",
         { data: data, x: 50, y: 0 },
-        { headers: { "content-type": "application/json", Authorization: `Bearer ${token}`} }
+        { headers: { "content-type": "application/json", Authorization: `Bearer ${token}` } }
       );
 
       const responses = axios.get(
         "http://localhost:8000/get-map-last/",
-        { headers: {Authorization: `Bearer ${token}`} }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       responses.then((response) => {
@@ -120,7 +160,7 @@ function ReactFlowRenderer() {
           },
         };
         setNodes((nds) => nds.concat(newNode));
-        })
+      })
     },
     [setNodes]
   );
@@ -129,14 +169,13 @@ function ReactFlowRenderer() {
     const token = localStorage.getItem("token");
     const response = fetch("http://localhost:8000/delete-map/", {
       method: "DELETE",
-      body: JSON.stringify({map_id: nodeId}),
+      body: JSON.stringify({ map_id: nodeId }),
       headers: {
         "content-type": "application/json",
         Authorization: `Bearer ${token}`
       },
     });
 
-    console.log(nodeId);
     setNodes((nds) => nds.filter((node) => node.id !== nodeId));
     setEdges((eds) =>
       eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
@@ -155,6 +194,28 @@ function ReactFlowRenderer() {
     setDeleteDropdownVisible(false);
   };
 
+  const onNodeDragStop = (event, node) => {
+    console.log(node.id)
+    const { x, y } = node.position;
+    const token = localStorage.getItem("token");
+
+    const response = axios.put(
+      "http://localhost:8000/update-xy/",
+      {
+        map_id: node.id,
+        x: x,
+        y: y
+      },
+      {
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  };
+
+  
   return (
     <div style={{ height: "77vh", margin: "1rem" }}>
       <Modal title="Basic Modal" open={isModalVisible} onCancel={handleCancel}>
@@ -182,7 +243,7 @@ function ReactFlowRenderer() {
               {nodes.map((node) => (
                 <Menu.Item key={node.id}>
                   <Button onClick={() => handleDelete(node.id)}>
-                    <DeleteOutlined/> {node.data.label}
+                    <DeleteOutlined /> {node.data.label}
                   </Button>
                 </Menu.Item>
               ))}
@@ -206,6 +267,7 @@ function ReactFlowRenderer() {
         fitView
         attributionPosition="bottom-left"
         connectionLineType={ConnectionLineType.SmoothStep}
+        onNodeDragStop={onNodeDragStop}
       >
         <Background gap={20} color="#f1f1f1" variant={BackgroundVariant.Lines} />
 

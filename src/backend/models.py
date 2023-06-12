@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, Float
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -42,8 +42,8 @@ class Map(Base):
     
     map_id = Column(Integer, primary_key = True, index = True)
     data = Column(String, index = True, nullable = False)
-    x = Column(Integer, index = True, nullable = False)
-    y = Column(Integer, index = True, nullable = False)
+    x = Column(Float, index = True, nullable = False)
+    y = Column(Float, index = True, nullable = False)
     source = Column(String, default = "")
     target = Column(String, default = "")
     user_id = Column(Integer, ForeignKey("users.id"), index = True, nullable = False)
