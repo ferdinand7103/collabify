@@ -80,8 +80,14 @@ class Map(BaseModel):
         orm_mode = True
     
 class MapSource(BaseModel):
-    source: int
-    target: int
+    map_id: int
+    source: str
+    target: str
+    
+class MapXY(BaseModel):
+    map_id: int
+    x: int
+    y: int
         
 class DeleteMap(BaseModel):
     map_id: int

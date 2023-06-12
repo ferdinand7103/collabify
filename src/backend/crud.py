@@ -181,3 +181,25 @@ def delete_map(db: Session, map_id: int):
     db.delete(db_map)
     db.commit()
     return db_map
+
+def update_source(db: Session, payload: schemas.MapSource):
+    db_map = db.query(models.Map).filter(models.Map.map_id == payload.map_id).first()
+    for var, value in vars(payload).items():
+        if value:
+            setattr(db_map, var, value)
+        else:
+            None
+    db.commit()
+    db.refresh(db_map)
+    return db_map
+
+def update_xy(db: Session, payload: schemas.MapXY):
+    db_map = db.query(models.Map).filter(models.Map.map_id == payload.map_id).first()
+    for var, value in vars(payload).items():
+        if value:
+            setattr(db_map, var, value)
+        else:
+            None
+    db.commit()
+    db.refresh(db_map)
+    return db_map

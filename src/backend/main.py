@@ -219,6 +219,22 @@ def add_map(
     session: Session = Depends(get_db)
 ):
     return crud.add_map(session, payload.data, payload.x, payload.y, token_data.email)
+
+@collabify.put("/update-source/", response_model = schemas.MapSource)
+def update_source(
+    payload: schemas.MapSource,
+    token_data: schemas.TokenData = Depends(get_current_user),
+    session: Session = Depends(get_db)
+):
+    return crud.update_source(session, payload)
+
+@collabify.put("/update-source/", response_model = schemas.MapXY)
+def update_source(
+    payload: schemas.MapSource,
+    token_data: schemas.TokenData = Depends(get_current_user),
+    session: Session = Depends(get_db)
+):
+    return crud.update_xy(session, payload)
     
 @collabify.get("/get-map/")
 def get_map(
