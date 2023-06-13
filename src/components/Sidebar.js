@@ -18,7 +18,7 @@ const Sidebar = ({
       const clickedNote = event.target.closest(".sidebar-note");
       if (clickedNote) {
         const noteId = clickedNote.dataset.noteId;
-        setActiveNote(clickedNote.dataset.noteId);
+        setActiveNote(noteId);
       } else {
         setActiveNote(null);
       }

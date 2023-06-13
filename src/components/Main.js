@@ -2,51 +2,46 @@ import React, { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 
 const Main = ({ activeNote, onUpdateNote }) => {
-  const [updatedNote, setUpdatedNote] = useState("");
+  const [updatedNote, setUpdatedNote] = useState({
+    title: "",
+    body: "",
+    id: "",
+    lastModified: null,
+  });
   const [show, setShow] = useState(true);
-
-  const setNote = () => {
-    setUpdatedNote({
-      title: activeNote[1],
-      body: activeNote[2],
-      id: activeNote[3],
-      lastModified: Date.now(),
-    });
-  };
-
-  const onEditField = (key, value) => {
-    if (key === "title") {
-      setUpdatedNote({
-        ...updatedNote,
-        title: value,
-        lastModified: Date.now(),
-      });
-    } else if (key === "body") {
-      setUpdatedNote({
-        ...updatedNote,
-        body: value,
-        lastModified: Date.now(),
-      });
-    }
-  };
 
   useEffect(() => {
     if (activeNote[0]) {
-      if (show) {
-        setNote();
-        setShow(false);
-      }
+      setUpdatedNote({
+        title: activeNote[1],
+        body: activeNote[2],
+        id: activeNote[3],
+        lastModified: Date.now(),
+      });
+      setShow(false);
+    } else {
+      setShow(true);
+    }
+  }, [activeNote]);
+
+  const onEditField = (key, value) => {
+    setUpdatedNote((prevNote) => ({
+      ...prevNote,
+      [key]: value,
+      lastModified: Date.now(),
+    }));
+  };
+
+  useEffect(() => {
+    if (!show) {
       const timeout = setTimeout(() => {
         onUpdateNote(updatedNote);
       }, 5);
       return () => {
         clearTimeout(timeout);
-      }
-    } else {
-      setShow(true);
+      };
     }
-    // Adjust the debounce delay as needed (e.g., 500ms)
-  }, [updatedNote, onUpdateNote]);
+  }, [updatedNote, onUpdateNote, show]);
 
   if (!activeNote[0])
     return <div className="no-active-note">No note selected yet</div>;
