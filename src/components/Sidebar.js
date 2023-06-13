@@ -86,6 +86,14 @@ const Sidebar = ({
     return highlightedTitle;
   };
 
+  const handleDeleteNote = (noteId) => {
+    setActiveNote(null); // Reset active note immediately
+
+    setTimeout(() => {
+      onDeleteNote(noteId); // Perform deletion logic after a short delay
+    }, 300);
+  };
+
   return (
     <div className="sidebar" ref={sidebarRef}>
       <div className="sidebar-header">
@@ -113,7 +121,7 @@ const Sidebar = ({
               <strong>
                 {highlightMatchingLetters(note.title, searchQuery)}
               </strong>
-              <button onClick={() => onDeleteNote(note.id)}>Delete</button>
+              <button onClick={() => handleDeleteNote(note.id)}>Delete</button>
             </div>
             <p>{note.body && note.body.substring(0, 100) + "..."}</p>
             <small className="note-meta">
