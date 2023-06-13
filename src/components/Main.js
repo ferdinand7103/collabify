@@ -25,6 +25,10 @@ const Main = ({ activeNote, onUpdateNote }) => {
   }, [activeNote]);
 
   const onEditField = (key, value) => {
+    if (key === "title") {
+      value = value.substring(0, 60); // Limit title to 100 characters
+    }
+
     setUpdatedNote((prevNote) => ({
       ...prevNote,
       [key]: value,
