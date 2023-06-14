@@ -7,59 +7,63 @@ import ReactFlow, {
   Background,
   BackgroundVariant,
 } from "react-flow-renderer";
-import { nodes as initialNodes, edges as initialEdges } from "./elements";
 import { Button, Modal, Input, Form, Dropdown, Menu } from "antd";
 import { DeleteOutlined, DownOutlined } from "@ant-design/icons";
 import axios from 'axios';
 
 function ReactFlowRenderer() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [deleteDropdownVisible, setDeleteDropdownVisible] = useState(false);
   const [show, setShow] = useState(true);
 
   const onConnect = useCallback(
-    (params) => {
-      // console.log('New edge source:', params);
-      // console.log('New edge target:', typeof params.target);
+    async (params) => {
       const token = localStorage.getItem("token");
 
-      const response = axios.put(
-        "http://localhost:8000/update-source/",
-        {
-          map_id: params.source,
-          source: params.source,
-          target: params.target
-        },
-        {
-          headers: {
-            "content-type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      const data = getMap();
+      data.then(response => {
+        const responses = response
+
+        for (var i = 0; i < responses.length; i++) {
+          const id = "" + responses[i].map_id;
+          if (id === params.source) {
+            axios.put(
+              "http://localhost:8000/update-source/",
+              {
+                map_id: params.source,
+                source: `${responses[i].source}` + params.source,
+                target: `${responses[i].target}` + params.target,
+              },
+              {
+                headers: {
+                  "content-type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+          }
         }
-      );
-  
-      setEdges((eds) =>
-        addEdge(
-          {
-            ...params,
-            type: ConnectionLineType.SmoothStep,
-            animated: true,
-            style: { stroke: "red" },
-          },
-          eds,
-        )
-      );
+      })
+
+      const newEdge = {
+        ...params,
+        type: ConnectionLineType.SmoothStep,
+        animated: true,
+        style: { stroke: "red" },
+      };
+
+      setEdges((prevEdges) => [newEdge, ...prevEdges]);
     },
     [setEdges]
   );
 
-  useEffect(() => {
-    nodes.map((node) => {
-      console.log(node.id)
-    })
-  }, []);
+  // useEffect(() => {
+  //   nodes.map((node) => {
+  //     console.log(node.id)
+  //   })
+  // },);
 
   const getNodeId = () => Math.random();
 
@@ -109,23 +113,33 @@ function ReactFlowRenderer() {
           },
         };
 
-        if (responses[i].source !== ""){
-          console.log("e" + responses[i].source + "-" + responses[i].target)
-          const newEdge = {
-            id: "e" + responses[i].source + "-" + responses[i].target,
-            source: responses[i].source,
-            target: responses[i].target,
-            type: "smoothstep",
-            animated: true
+        if (responses[i].source !== "") {
+          const source = `${responses[i].source}`
+          const target = `${responses[i].target}`
+          if (source.length > 1) {
+            for (var j = 0; j < source.length; j++) {
+              const newEdge = {
+                id: "e" + source[j] + "-" + target[j],
+                source: source[j],
+                target: target[j],
+                type:  ConnectionLineType.SmoothStep,
+                animated: true
+              }
+    
+              setEdges((prevEdges) => addEdge(newEdge, prevEdges));
+            }
+          } else {
+            const newEdge = {
+              id: "e" + responses[i].source + "-" + responses[i].target,
+              source: `${responses[i].source}`,
+              target: `${responses[i].target}`,
+              type:  ConnectionLineType.SmoothStep,
+              animated: true
+            }
+  
+            setEdges((prevEdges) => addEdge(newEdge, prevEdges));
           }
-          
-          setEdges((nds) => addEdge({
-            ...newEdge}, 
-            nds
-            )
-          );
-        }
-
+        } 
         setNodes((nds) => nds.concat(newNode));
       }
     })
@@ -178,7 +192,7 @@ function ReactFlowRenderer() {
 
     setNodes((nds) => nds.filter((node) => node.id !== nodeId));
     setEdges((eds) =>
-      eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
+    eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
     );
   }
 
@@ -195,7 +209,6 @@ function ReactFlowRenderer() {
   };
 
   const onNodeDragStop = (event, node) => {
-    console.log(node.id)
     const { x, y } = node.position;
     const token = localStorage.getItem("token");
 
@@ -215,7 +228,7 @@ function ReactFlowRenderer() {
     );
   };
 
-  
+
   return (
     <div style={{ height: "77vh", margin: "1rem" }}>
       <Modal title="Basic Modal" open={isModalVisible} onCancel={handleCancel}>
