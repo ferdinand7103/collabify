@@ -30,10 +30,6 @@ const App = () => {
     setPasswordError("");
   };
 
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
-
   const handleLogin = async (email, password) => {
     cleanErrors();
     
@@ -134,6 +130,15 @@ const App = () => {
     navigate("/collabify/login", { replace: true });
     console.log("clicked");
   };
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      handleLogout()
+    }, 18000000);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [handleLogout]);
 
   return (
     <div className="App">
