@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./App.css";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -8,15 +8,16 @@ import LandingPage from "./components/LPcomponents/LandingPage";
 import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 import MindMap from "./components/MindMap";
-import ChatBot from "./components/Chat"
+import ChatBot from "./components/Chat";
 
 const App = () => {
-  const [user, setUser] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [hasAccount, setHasAccount] = useState(true);
+  const [timeoutId, setTimeoutId] = useState(false); // Renamed state variable
+  const [user, setUser] = useState(null);
 
   const navigate = useNavigate();
 
@@ -32,13 +33,12 @@ const App = () => {
 
   const handleLogin = async (email, password) => {
     cleanErrors();
-    
+
     if (!email || !password) {
       // Check if any field is empty
       if (!email) setEmailError("Please enter your email");
-      console.log(emailError)
+      console.log(emailError);
       if (!password) setPasswordError("Please enter your password");
-      console.log("hello")
       return;
     }
 
@@ -60,13 +60,14 @@ const App = () => {
         const responseData = await response.json();
         localStorage.setItem("token", responseData.access_token);
 
-        const newUser = {
-          email,
-          password,
-        };
-
-        setUser(newUser);
         navigate("/collabify/dashboard");
+        setUser(true);
+
+        const newTimeoutId = setTimeout(() => {
+          handleLogout();
+          window.alert("Your session has expired. You have been logged out.");
+        }, 10000);
+        setTimeoutId(newTimeoutId);
       } else if (response.status === 400) {
         setEmailError("Email not registered or invalid");
       } else {
@@ -93,7 +94,14 @@ const App = () => {
       const token = response.data.access_token;
       localStorage.setItem("token", token);
 
-      navigate("/collabify/dashboard"); // Navigate to the dashboard route after successful signup
+      navigate("/collabify/dashboard");
+      setUser(true);
+
+      const newTimeoutId = setTimeout(() => {
+        handleLogout();
+        window.alert("Your session has expired. You have been logged out.");
+      }, 10000);
+      setTimeoutId(newTimeoutId);
     } catch (error) {
       if (error.response) {
         console.error("Error response:", error.response.data);
@@ -106,7 +114,6 @@ const App = () => {
   };
 
   const handleLogout = async () => {
-    setUser("");
     cleanInputs();
     setHasAccount(true);
     const token = localStorage.getItem("token");
@@ -126,24 +133,15 @@ const App = () => {
         console.error(error);
       });
     localStorage.removeItem("token");
-    setUser(null);
+    clearTimeout(timeoutId);
     navigate("/collabify/login", { replace: true });
-    console.log("clicked");
-  };
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      handleLogout()
-    }, 18000000);
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [handleLogout]);
+    setUser(false);
+  }
 
   return (
     <div className="App">
       <Routes>
-        <Route path="/" element={<LandingPage />}></Route>
+        <Route path="/" element={<LandingPage />} />
         <Route
           path="/collabify/dashboard"
           element={<Dashboard handleLogout={handleLogout} />}
@@ -152,6 +150,8 @@ const App = () => {
           path="/collabify/login"
           element={
             <Login
+              user={user}
+              handleLogout={handleLogout}
               email={email}
               setEmail={setEmail}
               password={password}
@@ -182,7 +182,6 @@ const App = () => {
           element={<ChatBot handleLogout={handleLogout} />}
         />
       </Routes>
-      
     </div>
   );
 };

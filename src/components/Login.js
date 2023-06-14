@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "./logo.png";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
@@ -6,6 +6,8 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 
 const Login = (props) => {
   const {
+    user,
+    handleLogout,
     email,
     setEmail,
     password,
@@ -28,6 +30,12 @@ const Login = (props) => {
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^(?=.*\d)(?=.*[A-Z]).{8,}$/;
+
+  useEffect(() => {
+    if(user){
+      handleLogout(); // Log out the user on component render if there is a user
+    }
+  }, [handleLogout, user]);
 
   const register = () => {
     if (password === confirmPassword) {
