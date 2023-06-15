@@ -67,7 +67,7 @@ const App = () => {
         const newTimeoutId = setTimeout(() => {
           handleLogout();
           window.alert("Your session has expired. You have been logged out.");
-        }, 10000);
+        }, 18000000);
         setTimeoutId(newTimeoutId);
       } else if (response.status === 400) {
         setEmailError("Email not registered or invalid");
@@ -101,7 +101,7 @@ const App = () => {
       const newTimeoutId = setTimeout(() => {
         handleLogout();
         window.alert("Your session has expired. You have been logged out.");
-      }, 10000);
+      }, 18000000);
       setTimeoutId(newTimeoutId);
     } catch (error) {
       if (error.response) {
