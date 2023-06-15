@@ -9,6 +9,7 @@ import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 import MindMap from "./components/MindMap";
 import ChatBot from "./components/Chat";
+import { url_login, url_logout, url_signup } from "./components/Url";
 
 const App = () => {
   const [email, setEmail] = useState("");
@@ -43,7 +44,7 @@ const App = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/token", {
+      const response = await fetch(url_login, {
         method: "POST",
         body: new URLSearchParams({
           username: email,
@@ -86,7 +87,7 @@ const App = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/signup/",
+        url_signup,
         { email, password },
         { headers: { "content-type": "application/json" } }
       );
@@ -125,7 +126,7 @@ const App = () => {
     };
 
     axios
-      .get("http://localhost:8000/logout", config)
+      .get(url_logout, config)
       .then((response) => {
         console.log(response.data);
       })

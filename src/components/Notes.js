@@ -5,6 +5,7 @@ import Sidebar from "./Sidebar";
 import NavBar from "./NavBar";
 import SideNavBar from "./SideNavBar";
 import axios from "axios";
+import { url_add_notes, url_update_notes, url_get_notes, url_get_notes_last, url_delete_notes } from "./Url";
 
 function Notes({ handleLogout }) {
   const [notes, setNotes] = useState([]);
@@ -13,7 +14,7 @@ function Notes({ handleLogout }) {
 
   const getNotes = async () => {
     const token = localStorage.getItem("token");
-    const response = await axios.get("http://localhost:8000/get-notes/", {
+    const response = await axios.get(url_get_notes, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -44,7 +45,7 @@ function Notes({ handleLogout }) {
     const dates = "" + Date.now();
 
     const response = await axios.post(
-      "http://localhost:8000/add-notes/",
+      url_add_notes,
       { title: "Untitled Note", body: "", time: dates },
       {
         headers: {
@@ -54,7 +55,7 @@ function Notes({ handleLogout }) {
       }
     );
 
-    const responses = await axios.get("http://localhost:8000/get-notes-last/", {
+    const responses = await axios.get(url_get_notes_last, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -84,7 +85,7 @@ function Notes({ handleLogout }) {
       }
 
       const response = axios.put(
-        "http://localhost:8000/update-notes/",
+        url_update_notes,
         {
           title: updatedNote.title,
           body: updatedNote.body,
@@ -114,7 +115,7 @@ function Notes({ handleLogout }) {
   const onDeleteNote = async (idToDelete) => {
     console.log(idToDelete);
     const token = localStorage.getItem("token");
-    const response = await fetch("http://localhost:8000/delete-notes/", {
+    const response = await fetch(url_delete_notes, {
       method: "DELETE",
       body: JSON.stringify({ notes_id: idToDelete }),
       headers: {

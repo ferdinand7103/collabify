@@ -7,6 +7,7 @@ import NavBar from "./NavBar";
 import SideNavBar from "./SideNavBar";
 import { FaTrashAlt } from "react-icons/fa";
 import axios from "axios";
+import { url_add_todo, url_update_todo, url_update_todo_id, url_get_todo, url_get_todo_last, url_delete_todo, url_delete_todo_id } from "./Url";
 
 function TodoList({ handleLogout }) {
   const [text, setText] = useState("");
@@ -47,7 +48,7 @@ function TodoList({ handleLogout }) {
     if (destination.droppableId === "new") {
       const title = "New";
       const response = axios.put(
-        "http://localhost:8000/update-todo-id/",
+        url_update_todo_id,
         { todo_id: itemCopy.id, title: title },
         {
           headers: {
@@ -59,7 +60,7 @@ function TodoList({ handleLogout }) {
     } else if (destination.droppableId === "progress") {
       const title = "In Progress";
       const response = axios.put(
-        "http://localhost:8000/update-todo-id/",
+        url_update_todo_id,
         { todo_id: itemCopy.id, title: title },
         {
           headers: {
@@ -71,7 +72,7 @@ function TodoList({ handleLogout }) {
     } else if (destination.droppableId === "done") {
       const title = "Completed";
       const response = axios.put(
-        "http://localhost:8000/update-todo-id/",
+        url_update_todo_id,
         { todo_id: itemCopy.id, title: title },
         {
           headers: {
@@ -96,7 +97,7 @@ function TodoList({ handleLogout }) {
 
   const getAllItem = async () => {
     const token = localStorage.getItem("token");
-    const response = await axios.get("http://localhost:8000/get-todo/", {
+    const response = await axios.get(url_get_todo, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -195,7 +196,7 @@ function TodoList({ handleLogout }) {
     const token = localStorage.getItem("token");
 
     const response = await axios.post(
-      "http://localhost:8000/add-todo/",
+      url_add_todo,
       { title: "New", name: name, duedate: dueDate },
       {
         headers: {
@@ -205,7 +206,7 @@ function TodoList({ handleLogout }) {
       }
     );
 
-    const responses = await axios.get("http://localhost:8000/get-todo-last/", {
+    const responses = await axios.get(url_get_todo_last, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -235,7 +236,7 @@ function TodoList({ handleLogout }) {
   const removeItem = async (listId, index, id) => {
     if (listId === "new" || listId === "progress" || listId === "done") {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:8000/delete-todo-id/", {
+      const response = await fetch(url_delete_todo_id, {
         method: "DELETE",
         body: JSON.stringify({ todo_id: id }),
         headers: {
@@ -262,7 +263,7 @@ function TodoList({ handleLogout }) {
         if (listId === "new") {
           const title = "New";
 
-          const response = await fetch("http://localhost:8000/delete-todo/", {
+          const response = await fetch(url_delete_todo, {
             method: "DELETE",
             body: JSON.stringify({ title: title }),
             headers: {
@@ -273,7 +274,7 @@ function TodoList({ handleLogout }) {
         } else if (listId === "progress") {
           const title = "In Progress";
 
-          const response = await fetch("http://localhost:8000/delete-todo/", {
+          const response = await fetch(url_delete_todo, {
             method: "DELETE",
             body: JSON.stringify({ title: title }),
             headers: {
@@ -284,7 +285,7 @@ function TodoList({ handleLogout }) {
         } else if (listId === "done") {
           const title = "Completed";
 
-          const response = await fetch("http://localhost:8000/delete-todo/", {
+          const response = await fetch(url_delete_todo, {
             method: "DELETE",
             body: JSON.stringify({ title: title }),
             headers: {
@@ -371,7 +372,7 @@ function TodoList({ handleLogout }) {
           const token = localStorage.getItem("token");
 
           const response = axios.put(
-            "http://localhost:8000/update-todo/",
+            url_update_todo,
             {
               name: editedItem.name,
               duedate: editedItem.dueDate,

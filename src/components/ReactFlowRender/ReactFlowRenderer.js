@@ -10,6 +10,7 @@ import ReactFlow, {
 import { Button, Modal, Input, Form, Dropdown, Menu } from "antd";
 import { DeleteOutlined, DownOutlined } from "@ant-design/icons";
 import axios from 'axios';
+import { url_add_map, url_update_source, url_update_xy, url_get_map, url_get_map_last, url_delete_map } from "../Url";
 
 function ReactFlowRenderer() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -30,7 +31,7 @@ function ReactFlowRenderer() {
           const id = "" + responses[i].map_id;
           if (id === params.source) {
             axios.put(
-              "http://localhost:8000/update-source/",
+              url_update_source,
               {
                 map_id: params.source,
                 source: `${responses[i].source}` + params.source,
@@ -90,7 +91,7 @@ function ReactFlowRenderer() {
   const getMap = async () => {
     const token = localStorage.getItem("token");
     const response = await axios.get(
-      "http://localhost:8000/get-map/",
+      url_get_map,
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
@@ -150,13 +151,13 @@ function ReactFlowRenderer() {
       const token = localStorage.getItem("token");
 
       const response = axios.post(
-        "http://localhost:8000/add-map/",
+        url_add_map,
         { data: data, x: 50, y: 0 },
         { headers: { "content-type": "application/json", Authorization: `Bearer ${token}` } }
       );
 
       const responses = axios.get(
-        "http://localhost:8000/get-map-last/",
+        url_get_map_last,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -181,7 +182,7 @@ function ReactFlowRenderer() {
 
   function handleDelete(nodeId) {
     const token = localStorage.getItem("token");
-    const response = fetch("http://localhost:8000/delete-map/", {
+    const response = fetch(url_delete_map, {
       method: "DELETE",
       body: JSON.stringify({ map_id: nodeId }),
       headers: {
@@ -213,7 +214,7 @@ function ReactFlowRenderer() {
     const token = localStorage.getItem("token");
 
     const response = axios.put(
-      "http://localhost:8000/update-xy/",
+      url_update_xy,
       {
         map_id: node.id,
         x: x,
