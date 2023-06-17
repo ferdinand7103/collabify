@@ -1,4 +1,5 @@
 const url = "http://localhost:8000";
+export const openAI = "http://localhost:5000";
 
 // User Backend
 export const url_login = url + "/token";
@@ -28,3 +29,6 @@ export const url_update_xy = url + "/update-xy/";
 export const url_get_map = url + "/get-map/";
 export const url_get_map_last = url + "/get-map-last/";
 export const url_delete_map = url + "/delete-map/";
+
+// OpenAI
+export const url_openAI = openAI + "/ask";

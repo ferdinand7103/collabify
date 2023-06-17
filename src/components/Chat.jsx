@@ -6,6 +6,7 @@ import "./Chat.css";
 import NavBar from "./NavBar";
 import SideNavBar from "./SideNavBar";
 import { AiOutlineSearch } from "react-icons/ai";
+import { url_openAI } from "./Url";
 
 function ChatBot({ handleLogout }) {
   const [prompt, updatePrompt] = useState("");
@@ -32,7 +33,7 @@ function ChatBot({ handleLogout }) {
         body: JSON.stringify({ prompt }),
       };
 
-      const res = await fetch("http://localhost:5000/ask", requestOptions);
+      const res = await fetch(url_openAI, requestOptions);
 
       if (!res.ok) {
         throw new Error("Something went wrong");
