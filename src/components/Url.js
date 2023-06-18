@@ -1,5 +1,5 @@
-const url = "http://localhost:8000";
-export const openAI = "http://localhost:5000";
+const url = "https://collabify-api-vycupigjnq-an.a.run.app";
+export const openAI = "https://collabify-chatbackend-vycupigjnq-an.a.run.app";
 
 // User Backend
 export const url_login = url + "/token";
