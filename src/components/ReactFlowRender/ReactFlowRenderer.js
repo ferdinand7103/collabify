@@ -272,7 +272,7 @@ function ReactFlowRenderer() {
 
         <Dropdown
           overlay={
-            <Menu onClick={handleDeleteMenuItemClick}>
+            <Menu>
               {nodes.map((node) => (
                 <Menu.Item key={node.id}>
                   <Button onClick={() => handleDelete(node.id)}>
