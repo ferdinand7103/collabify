@@ -18,6 +18,7 @@ function ReactFlowRenderer() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [deleteDropdownVisible, setDeleteDropdownVisible] = useState(false);
   const [show, setShow] = useState(true);
+  const [form] = Form.useForm(); // Create a form instance
 
   const onConnect = useCallback(
     async (params) => {
@@ -84,8 +85,11 @@ function ReactFlowRenderer() {
   }
 
   function handleOk(data) {
-    onAdd(data.nodeName);
-    setIsModalVisible(false);
+    if (data.nodeName) {
+      onAdd(data.nodeName);
+      setIsModalVisible(false);
+      form.resetFields(); // Reset the form fields
+    }
   }
 
   const getMap = async () => {
@@ -198,15 +202,11 @@ function ReactFlowRenderer() {
   }
 
   const handleDeleteClick = () => {
-    setDeleteDropdownVisible(true);
+    setDeleteDropdownVisible(!deleteDropdownVisible);
   };
 
   const handleDeleteDropdownVisibleChange = (visible) => {
     setDeleteDropdownVisible(visible);
-  };
-
-  const handleDeleteMenuItemClick = () => {
-    setDeleteDropdownVisible(false);
   };
 
   const onNodeDragStop = (event, node) => {
@@ -232,9 +232,28 @@ function ReactFlowRenderer() {
 
   return (
     <div style={{ height: "77vh", margin: "1rem" }}>
-      <Modal title="Basic Modal" open={isModalVisible} onCancel={handleCancel}>
-        <Form onFinish={handleOk} autoComplete="off" name="new node">
-          <Form.Item label="Node Name" name="nodeName">
+      <Modal
+        title="Basic Modal"
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        destroyOnClose // Close the modal and destroy its content on close
+      >
+        <Form
+          form={form} // Pass the form instance to the Form component
+          onFinish={handleOk}
+          autoComplete="off"
+          name="new node"
+        >
+          <Form.Item
+            label="Node Name"
+            name="nodeName"
+            rules={[
+              {
+                required: true,
+                message: "Please enter a node name",
+              },
+            ]}
+          >
             <Input />
           </Form.Item>
 
