@@ -49,11 +49,9 @@ const cors = require("cors"); // Import the CORS package
 
 const app = express();
 app.use(express.json());
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://collabify-chatbackend-vycupigjnq-an.a.run.app/ask' );
-  next();
-}); // Enable CORS for all routes
-
+app.use(cors({
+  origin : "https://colabify-beryl.vercel.app"
+}));
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
