@@ -50,7 +50,7 @@ const cors = require("cors"); // Import the CORS package
 const app = express();
 app.use(express.json());
 app.use((req, res, next) => {
-  res.header('Access-Control-ALlow-Origin', 'https://collabify-chatbackend-vycupigjnq-an.a.run.app' );
+  res.header('Access-Control-Allow-Origin', 'https://collabify-chatbackend-vycupigjnq-an.a.run.app' );
   next();
 }); // Enable CORS for all routes
 
