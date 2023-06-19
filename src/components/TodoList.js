@@ -205,7 +205,7 @@ function TodoList({ handleLogout }) {
         },
       }
     );
-
+    console.log(url_get_todo_last)
     const responses = await axios.get(url_get_todo_last, {
       headers: { Authorization: `Bearer ${token}` },
     });
