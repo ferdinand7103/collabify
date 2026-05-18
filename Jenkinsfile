@@ -38,7 +38,7 @@ pipeline {
                         echo "=== Build Frontend: ${APP_NAME} v${BUILD_VERSION} ==="
                         sh '''
                             npm ci --prefer-offline
-                            npm run build
+                            CI=false npm run build
                         '''
                         echo 'Frontend build artefact created in build/'
                         archiveArtifacts artifacts: 'build/**', fingerprint: true
