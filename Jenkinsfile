@@ -122,7 +122,7 @@ pipeline {
                                 -v \$(pwd)/src/backend:/app \
                                 -w /app \
                                 ${DOCKER_IMAGE_BACKEND}:${BUILD_VERSION} \
-                                sh -c "pip install pytest pytest-cov httpx --quiet 2>&1 | tail -5 && \
+                                sh -c "pip install pytest pytest-cov 'httpx==0.24.1' --quiet 2>&1 | tail -5 && \
                                        pytest tests/ -v \
                                            --tb=short \
                                            --cov=. \
