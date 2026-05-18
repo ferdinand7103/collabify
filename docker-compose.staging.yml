@@ -1,0 +1,29 @@
+version: '3.8'
+
+# Staging stack – accessed via STAGING_BACKEND_PORT / STAGING_FRONTEND_PORT (default 8001 / 3001)
+
+services:
+
+  backend:
+    image: collabify-backend:${BUILD_VERSION:-latest}
+    container_name: collabify-backend-staging
+    ports:
+      - "${BACKEND_PORT:-8001}:8000"
+    environment:
+      - ENV=staging
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 8s
+
+  frontend:
+    image: collabify-frontend:${BUILD_VERSION:-latest}
+    container_name: collabify-frontend-staging
+    ports:
+      - "${FRONTEND_PORT:-3001}:80"
+    depends_on:
+      - backend
+    restart: "no"

@@ -1,0 +1,37 @@
+version: '3.8'
+
+# Production stack – accessed via PROD_BACKEND_PORT / PROD_FRONTEND_PORT (default 8000 / 3000)
+
+services:
+
+  backend:
+    image: collabify-backend:${BUILD_VERSION:-latest}
+    container_name: collabify-backend-prod
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      - ENV=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    image: collabify-frontend:${BUILD_VERSION:-latest}
+    container_name: collabify-frontend-prod
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+      # curl is installed in the frontend Dockerfile (nginx:alpine + apk add curl)
