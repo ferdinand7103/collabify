@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'NodeJS 26'
+    }
+
     environment {
         APP_NAME            = 'collabify'
         BUILD_VERSION       = "1.0.${BUILD_NUMBER}"
@@ -14,6 +18,8 @@ pipeline {
         PROD_FRONTEND_PORT    = '3000'
 
         NOTIFICATION_EMAIL = 'hikari7394@gmail.com'
+
+        PATH = "/usr/local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:${env.PATH}"
     }
 
     stages {
