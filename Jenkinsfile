@@ -144,24 +144,24 @@ pipeline {
 
         // ─────────────────────────────────────────────────────────────────
         // STAGE 3 – CODE QUALITY
-        // ESLint (frontend) enforces a zero-warning policy on src/.
-        // flake8 (backend) checks PEP 8 compliance with a 120-char limit.
-        // pylint scores must reach at least 7.0/10 to gate the pipeline.
+        // ESLint (frontend) gates the pipeline: more than 10 warnings on src/
+        // fails the build.
+        // flake8 (backend) reports PEP 8 issues (120-char limit) for review.
+        // pylint gates the pipeline: a score below 5.0/10 fails the build.
         // ─────────────────────────────────────────────────────────────────
         stage('Code Quality') {
             parallel {
 
                 stage('Code Quality – ESLint (Frontend)') {
                     steps {
-                        echo '=== ESLint: zero-warning policy on src/ ==='
+                        echo '=== ESLint: gating at max 10 warnings on src/ ==='
                         sh '''
                             npx eslint src/ \
                                 --ext .js,.jsx \
                                 --format stylish \
                                 --max-warnings 10 \
                                 --ignore-pattern "src/setupTests.js" \
-                                --ignore-pattern "src/reportWebVitals.js" \
-                                || echo "ESLint found issues – review output above (non-blocking for demo)"
+                                --ignore-pattern "src/reportWebVitals.js"
                         '''
                     }
                 }
@@ -185,12 +185,11 @@ pipeline {
                                         --count \
                                         || echo 'flake8: issues found (review above)'
 
-                                    echo '--- pylint (min score: 7.0) ---'
+                                    echo '--- pylint (gating, min score: 5.0) ---'
                                     pylint *.py \
                                         --max-line-length=120 \
                                         --disable=C0114,C0115,C0116,W0611,R0903 \
-                                        --fail-under=5.0 \
-                                        || echo 'pylint: score below threshold'
+                                        --fail-under=5.0
                                 "
                         """
                     }
