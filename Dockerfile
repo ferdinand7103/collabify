@@ -1,27 +1,23 @@
-# ── Stage 1: Build the React app ──────────────────────────────────────────────
+# Stage 1: build the React app
 FROM node:18-alpine AS build
 
 WORKDIR /app
 
-# Install dependencies first (layer cache friendly)
+# install deps first so this layer is cached when only source changes
 COPY package*.json ./
 RUN npm ci --prefer-offline
 
-# Copy source and build
 COPY public/ ./public/
-COPY src/    ./src/
+COPY src/ ./src/
 RUN npm run build
 
-# ── Stage 2: Serve the static files with nginx ────────────────────────────────
+# Stage 2: serve the built files with nginx
 FROM nginx:1.25-alpine
 
-# Install curl so the HEALTHCHECK can probe the server
+# curl is needed for the healthcheck below
 RUN apk add --no-cache curl
 
-# Copy the React production build
 COPY --from=build /app/build /usr/share/nginx/html
-
-# Copy custom nginx config (SPA routing + reverse proxy to backend)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80

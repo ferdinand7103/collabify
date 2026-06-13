@@ -1,7 +1,5 @@
 version: '3.8'
 
-# Staging stack – accessed via STAGING_BACKEND_PORT / STAGING_FRONTEND_PORT (default 8001 / 3001)
-
 services:
 
   backend:
