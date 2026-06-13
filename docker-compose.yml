@@ -1,7 +1,5 @@
 version: '3.8'
 
-# Production stack – accessed via PROD_BACKEND_PORT / PROD_FRONTEND_PORT (default 8000 / 3000)
-
 services:
 
   backend:

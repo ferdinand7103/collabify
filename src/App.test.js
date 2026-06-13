@@ -1,44 +1,30 @@
-/**
- * Collabify – Frontend Test Suite
- * ================================
- * Uses React Testing Library + Jest.
- * Tests are split into:
- *   • Unit tests  – individual helper functions / utilities
- *   • Smoke tests – shallow render checks that confirm components mount
- *
- * Firebase and React Router are mocked so the suite runs in CI without
- * any live service credentials.
- */
-
 import React from 'react';
 import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
-// ── Mock Firebase so it never reaches the network ─────────────────────────────
+// mock firebase so tests don't try to hit the network
 jest.mock('./config/firebase', () => ({
   auth: {},
   db: {},
 }), { virtual: true });
 
-jest.mock('firebase/app',  () => ({ initializeApp: jest.fn() }));
+jest.mock('firebase/app', () => ({ initializeApp: jest.fn() }));
 jest.mock('firebase/auth', () => ({
-  getAuth:              jest.fn(() => ({})),
-  onAuthStateChanged:   jest.fn(),
+  getAuth: jest.fn(() => ({})),
+  onAuthStateChanged: jest.fn(),
   signInWithEmailAndPassword: jest.fn(),
   createUserWithEmailAndPassword: jest.fn(),
-  signOut:              jest.fn(),
+  signOut: jest.fn(),
 }));
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(() => ({})),
-  collection:   jest.fn(),
-  getDocs:      jest.fn(),
-  addDoc:       jest.fn(),
+  collection: jest.fn(),
+  getDocs: jest.fn(),
+  addDoc: jest.fn(),
 }));
 
 
-// ── Unit tests ─────────────────────────────────────────────────────────────────
-
-describe('Utility – token helpers', () => {
+describe('token helpers', () => {
 
   beforeEach(() => {
     localStorage.clear();
@@ -62,7 +48,7 @@ describe('Utility – token helpers', () => {
 });
 
 
-describe('Utility – form validation logic', () => {
+describe('form validation logic', () => {
 
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -94,9 +80,8 @@ describe('Utility – form validation logic', () => {
 });
 
 
-// ── Smoke tests ────────────────────────────────────────────────────────────────
-
-describe('Smoke – LandingPage renders', () => {
+// smoke test, just checks the component renders without crashing
+describe('LandingPage renders', () => {
   let LandingPage;
 
   beforeAll(async () => {
@@ -109,7 +94,6 @@ describe('Smoke – LandingPage renders', () => {
 
   test('LandingPage mounts without crashing (or skips if import fails)', () => {
     if (!LandingPage) {
-      // Module has deep dependencies that can't be resolved in test env – skip gracefully
       console.warn('LandingPage skipped: could not import in test environment');
       return;
     }
@@ -124,7 +108,7 @@ describe('Smoke – LandingPage renders', () => {
 });
 
 
-describe('Smoke – document environment', () => {
+describe('test environment', () => {
 
   test('runs in a jsdom browser-like environment', () => {
     expect(typeof document).toBe('object');

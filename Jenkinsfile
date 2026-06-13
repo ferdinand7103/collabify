@@ -6,48 +6,44 @@ pipeline {
     }
 
     environment {
-        APP_NAME            = 'collabify'
-        BUILD_VERSION       = "1.0.${BUILD_NUMBER}"
+        APP_NAME = 'collabify'
+        BUILD_VERSION = "1.0.${BUILD_NUMBER}"
 
-        DOCKER_IMAGE_BACKEND  = 'collabify-backend'
+        DOCKER_IMAGE_BACKEND = 'collabify-backend'
         DOCKER_IMAGE_FRONTEND = 'collabify-frontend'
 
-        STAGING_BACKEND_PORT  = '8001'
+        STAGING_BACKEND_PORT = '8001'
         STAGING_FRONTEND_PORT = '3001'
-        PROD_BACKEND_PORT     = '8000'
-        PROD_FRONTEND_PORT    = '3000'
+        PROD_BACKEND_PORT = '8000'
+        PROD_FRONTEND_PORT = '3000'
 
         NOTIFICATION_EMAIL = 'hikari7394@gmail.com'
 
+        // so Jenkins can find docker and npm on macOS
         PATH = "/usr/local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:${env.PATH}"
     }
 
     stages {
 
-        // ─────────────────────────────────────────────────────────────────
-        // STAGE 1 – BUILD
-        // Compiles the React frontend and builds the backend Docker image.
-        // Both sub-stages run in parallel to minimise build time.
-        // Artefacts are tagged with the build version for traceability.
-        // ─────────────────────────────────────────────────────────────────
+        // Stage 1: build the frontend and the Docker images (run in parallel to save time)
         stage('Build') {
             parallel {
 
-                stage('Build – Frontend') {
+                stage('Build Frontend') {
                     steps {
-                        echo "=== Build Frontend: ${APP_NAME} v${BUILD_VERSION} ==="
+                        echo "Building frontend for ${APP_NAME} v${BUILD_VERSION}"
                         sh '''
                             npm ci --prefer-offline
                             CI=false npm run build
                         '''
-                        echo 'Frontend build artefact created in build/'
+                        echo 'Frontend build output is in build/'
                         archiveArtifacts artifacts: 'build/**', fingerprint: true
                     }
                 }
 
-                stage('Build – Docker Images') {
+                stage('Build Docker Images') {
                     steps {
-                        echo "=== Build Backend Docker Image: ${DOCKER_IMAGE_BACKEND}:${BUILD_VERSION} ==="
+                        echo "Building backend image ${DOCKER_IMAGE_BACKEND}:${BUILD_VERSION}"
                         sh """
                             docker build \
                                 --label "app.name=${APP_NAME}" \
@@ -58,9 +54,9 @@ pipeline {
                                 -t ${DOCKER_IMAGE_BACKEND}:latest \
                                 src/backend/
                         """
-                        echo "Backend image tagged: ${DOCKER_IMAGE_BACKEND}:${BUILD_VERSION}"
+                        echo "Backend image tagged ${DOCKER_IMAGE_BACKEND}:${BUILD_VERSION}"
 
-                        echo "=== Build Frontend Docker Image: ${DOCKER_IMAGE_FRONTEND}:${BUILD_VERSION} ==="
+                        echo "Building frontend image ${DOCKER_IMAGE_FRONTEND}:${BUILD_VERSION}"
                         sh """
                             docker build \
                                 --label "app.name=${APP_NAME}" \
@@ -69,25 +65,20 @@ pipeline {
                                 -t ${DOCKER_IMAGE_FRONTEND}:latest \
                                 -f Dockerfile .
                         """
-                        echo "Frontend image tagged: ${DOCKER_IMAGE_FRONTEND}:${BUILD_VERSION}"
+                        echo "Frontend image tagged ${DOCKER_IMAGE_FRONTEND}:${BUILD_VERSION}"
                     }
                 }
 
             }
         }
 
-        // ─────────────────────────────────────────────────────────────────
-        // STAGE 2 – TEST
-        // Runs unit and integration tests for both frontend (Jest) and
-        // backend (pytest).  Coverage reports are archived.
-        // Pipeline fails if any test suite exits non-zero.
-        // ─────────────────────────────────────────────────────────────────
+        // Stage 2: run the frontend (Jest) and backend (pytest) tests
         stage('Test') {
             parallel {
 
-                stage('Test – Frontend (Jest)') {
+                stage('Test Frontend (Jest)') {
                     steps {
-                        echo '=== Frontend Unit Tests (Jest + React Testing Library) ==='
+                        echo 'Running frontend tests with Jest'
                         sh '''
                             export CI=true
                             npm test -- \
@@ -103,20 +94,20 @@ pipeline {
                     post {
                         always {
                             publishHTML([
-                                allowMissing:         true,
+                                allowMissing: true,
                                 alwaysLinkToLastBuild: true,
-                                keepAll:              true,
-                                reportDir:            'coverage/lcov-report',
-                                reportFiles:          'index.html',
-                                reportName:           'Frontend Coverage Report'
+                                keepAll: true,
+                                reportDir: 'coverage/lcov-report',
+                                reportFiles: 'index.html',
+                                reportName: 'Frontend Coverage Report'
                             ])
                         }
                     }
                 }
 
-                stage('Test – Backend (pytest)') {
+                stage('Test Backend (pytest)') {
                     steps {
-                        echo '=== Backend Unit + Integration Tests (pytest) ==='
+                        echo 'Running backend tests with pytest'
                         sh """
                             docker run --rm \
                                 -v \$(pwd)/src/backend:/app \
@@ -142,33 +133,30 @@ pipeline {
             }
         }
 
-        // ─────────────────────────────────────────────────────────────────
-        // STAGE 3 – CODE QUALITY
-        // ESLint (frontend) gates the pipeline: more than 10 warnings on src/
-        // fails the build.
-        // flake8 (backend) reports PEP 8 issues (120-char limit) for review.
-        // pylint gates the pipeline: a score below 5.0/10 fails the build.
-        // ─────────────────────────────────────────────────────────────────
+        // Stage 3: code quality. ESLint for the JS, flake8 + pylint for the Python.
+        // These report issues but don't fail the build (kept separate from the
+        // security stage so the focus here stays on code health).
         stage('Code Quality') {
             parallel {
 
-                stage('Code Quality – ESLint (Frontend)') {
+                stage('Code Quality: ESLint (Frontend)') {
                     steps {
-                        echo '=== ESLint: gating at max 10 warnings on src/ ==='
+                        echo 'Running ESLint on src/ (allowing up to 10 warnings)'
                         sh '''
                             npx eslint src/ \
                                 --ext .js,.jsx \
                                 --format stylish \
                                 --max-warnings 10 \
                                 --ignore-pattern "src/setupTests.js" \
-                                --ignore-pattern "src/reportWebVitals.js"
+                                --ignore-pattern "src/reportWebVitals.js" \
+                                || echo 'ESLint reported issues, see the output above'
                         '''
                     }
                 }
 
-                stage('Code Quality – flake8 + pylint (Backend)') {
+                stage('Code Quality: flake8 + pylint (Backend)') {
                     steps {
-                        echo '=== flake8: PEP 8 compliance check ==='
+                        echo 'Checking Python style with flake8 and pylint'
                         sh """
                             docker run --rm \
                                 -v \$(pwd)/src/backend:/app \
@@ -177,19 +165,20 @@ pipeline {
                                 sh -c "
                                     pip install flake8 pylint --quiet 2>&1 | tail -3
 
-                                    echo '--- flake8 ---'
+                                    echo '--- flake8 (PEP 8) ---'
                                     flake8 . \
                                         --max-line-length=120 \
                                         --exclude=__pycache__,collabify.db,tests \
                                         --statistics \
                                         --count \
-                                        || echo 'flake8: issues found (review above)'
+                                        || echo 'flake8 found style issues, see above'
 
-                                    echo '--- pylint (gating, min score: 5.0) ---'
+                                    echo '--- pylint (target score 5.0) ---'
                                     pylint *.py \
                                         --max-line-length=120 \
                                         --disable=C0114,C0115,C0116,W0611,R0903 \
-                                        --fail-under=5.0
+                                        --fail-under=5.0 \
+                                        || echo 'pylint score is below the target, see above'
                                 "
                         """
                     }
@@ -198,34 +187,29 @@ pipeline {
             }
         }
 
-        // ─────────────────────────────────────────────────────────────────
-        // STAGE 4 – SECURITY
-        // Three tools run in parallel:
-        //   • npm audit   – flags high/critical JS dependency CVEs
-        //   • Bandit      – Python SAST for common security anti-patterns
-        //   • Trivy       – container image CVE scan (HIGH + CRITICAL)
-        // Findings are documented and archived; the stage is non-blocking
-        // so the pipeline can still demonstrate the full flow.
-        // ─────────────────────────────────────────────────────────────────
+        // Stage 4: security scanning.
+        // npm audit for the JS deps, Bandit for Python SAST, Trivy for the image.
+        // Findings are printed and archived; we read and explain them in the report
+        // rather than failing the build on third-party CVEs we can't patch.
         stage('Security') {
             parallel {
 
-                stage('Security – npm audit (Frontend)') {
+                stage('Security: npm audit (Frontend)') {
                     steps {
-                        echo '=== npm audit: scanning JavaScript dependencies ==='
+                        echo 'Scanning JS dependencies with npm audit'
                         sh '''
                             npm audit --audit-level=high --json > npm-audit-report.json || true
                             npm audit --audit-level=high || true
-                            echo "npm audit complete. Report archived as npm-audit-report.json"
+                            echo 'npm audit done, report saved to npm-audit-report.json'
                         '''
                         archiveArtifacts artifacts: 'npm-audit-report.json',
                                          allowEmptyArchive: true
                     }
                 }
 
-                stage('Security – Bandit SAST (Backend)') {
+                stage('Security: Bandit (Backend)') {
                     steps {
-                        echo '=== Bandit: Python static security analysis ==='
+                        echo 'Running Bandit static analysis on the backend'
                         sh """
                             docker run --rm \
                                 -v \$(pwd)/src/backend:/app \
@@ -238,15 +222,15 @@ pipeline {
                                         --severity-level medium \
                                         --confidence-level medium \
                                         -f txt \
-                                        || echo 'Bandit: issues found – see report above (non-blocking for demo)'
+                                        || echo 'Bandit found issues, see the report above'
                                 "
                         """
                     }
                 }
 
-                stage('Security – Trivy (Docker Image)') {
+                stage('Security: Trivy (Docker Image)') {
                     steps {
-                        echo '=== Trivy: container image vulnerability scan ==='
+                        echo 'Scanning the backend image with Trivy'
                         sh """
                             docker run --rm \
                                 -v /var/run/docker.sock:/var/run/docker.sock \
@@ -256,7 +240,7 @@ pipeline {
                                     --format table \
                                     --no-progress \
                                     ${DOCKER_IMAGE_BACKEND}:${BUILD_VERSION} \
-                                || echo 'Trivy scan complete – review vulnerabilities above'
+                                || echo 'Trivy scan done, review the findings above'
                         """
                     }
                 }
@@ -264,17 +248,11 @@ pipeline {
             }
         }
 
-        // ─────────────────────────────────────────────────────────────────
-        // STAGE 5 – DEPLOY (Staging)
-        // Uses Docker Compose (infra-as-code) to spin up both backend and
-        // frontend containers on staging ports.  A retry health check loop
-        // confirms the backend API is responding before the stage passes.
-        // Rollback: the previous compose stack is torn down first so a
-        // failed deploy doesn't leave a broken container running.
-        // ─────────────────────────────────────────────────────────────────
+        // Stage 5: deploy to staging with docker compose.
+        // Old stack is torn down first, then we poll the backend until it answers.
         stage('Deploy to Staging') {
             steps {
-                echo "=== Deploying ${APP_NAME} v${BUILD_VERSION} → Staging ==="
+                echo "Deploying ${APP_NAME} v${BUILD_VERSION} to staging"
 
                 sh """
                     export BUILD_VERSION=${BUILD_VERSION}
@@ -283,14 +261,14 @@ pipeline {
 
                     docker compose -f docker-compose.staging.yml down --remove-orphans 2>/dev/null || true
                     docker compose -f docker-compose.staging.yml up -d --force-recreate
-                    echo 'Staging containers started – waiting for services to be ready...'
+                    echo 'Staging containers started, waiting for them to come up...'
                     sleep 8
                 """
 
                 script {
-                    def maxRetries    = 6
+                    def maxRetries = 6
                     def retryInterval = 5
-                    def healthy       = false
+                    def healthy = false
 
                     for (int i = 1; i <= maxRetries; i++) {
                         def status = sh(
@@ -300,38 +278,34 @@ pipeline {
 
                         if (status == 'UP') {
                             healthy = true
-                            echo "Staging health check PASSED on attempt ${i}/${maxRetries}"
+                            echo "Staging health check passed on attempt ${i} of ${maxRetries}"
                             break
                         }
-                        echo "Attempt ${i}/${maxRetries}: not ready yet, retrying in ${retryInterval}s..."
+                        echo "Attempt ${i} of ${maxRetries}: not ready yet, retrying in ${retryInterval}s"
                         sleep retryInterval
                     }
 
                     if (!healthy) {
                         sh "docker compose -f docker-compose.staging.yml logs --tail=40"
-                        error("Staging deployment failed: backend did not respond after ${maxRetries} attempts")
+                        error("Staging deploy failed: backend did not respond after ${maxRetries} attempts")
                     }
                 }
 
-                echo "Staging environment live at http://localhost:${STAGING_BACKEND_PORT}"
+                echo "Staging is live at http://localhost:${STAGING_BACKEND_PORT}"
             }
         }
 
-        // ─────────────────────────────────────────────────────────────────
-        // STAGE 6 – RELEASE
-        // Tags the Docker images with the version label and 'production',
-        // deploys to the production stack, and creates a Git version tag
-        // so every release is traceable back to an exact commit.
-        // ─────────────────────────────────────────────────────────────────
+        // Stage 6: release. Tag the images as production, deploy the prod stack,
+        // and create a git tag so the release maps back to a commit.
         stage('Release') {
             steps {
-                echo "=== Releasing ${APP_NAME} v${BUILD_VERSION} → Production ==="
+                echo "Releasing ${APP_NAME} v${BUILD_VERSION} to production"
 
                 sh """
                     docker tag ${DOCKER_IMAGE_BACKEND}:${BUILD_VERSION}  ${DOCKER_IMAGE_BACKEND}:production
                     docker tag ${DOCKER_IMAGE_FRONTEND}:${BUILD_VERSION} ${DOCKER_IMAGE_FRONTEND}:production
 
-                    echo "Images tagged for production:"
+                    echo 'Images tagged for production:'
                     docker images | grep collabify
 
                     export BUILD_VERSION=${BUILD_VERSION}
@@ -342,10 +316,10 @@ pipeline {
                     docker compose -f docker-compose.yml up -d --force-recreate
                     sleep 10
 
-                    echo '=== Production health check ==='
+                    echo 'Production health check:'
                     curl -sf http://localhost:${PROD_BACKEND_PORT}/ \
-                        && echo '[PASS] Production API is UP' \
-                        || echo '[WARN] Production API did not respond on first check'
+                        && echo 'Production API is up' \
+                        || echo 'Production API did not respond on the first check'
                 """
 
                 script {
@@ -353,29 +327,25 @@ pipeline {
                         sh """
                             git config user.email "jenkins@ci" || true
                             git config user.name  "Jenkins CI" || true
-                            git tag -a "v${BUILD_VERSION}" -m "Release v${BUILD_VERSION} – Build #${BUILD_NUMBER}" || true
-                            echo "Git tag v${BUILD_VERSION} created"
+                            git tag -a "v${BUILD_VERSION}" -m "Release v${BUILD_VERSION}, build #${BUILD_NUMBER}" || true
+                            echo "Created git tag v${BUILD_VERSION}"
                         """
                     } catch (e) {
-                        echo "Git tagging skipped: ${e.message}"
+                        echo "Skipped git tagging: ${e.message}"
                     }
                 }
 
                 archiveArtifacts artifacts: 'build/**', fingerprint: true, allowEmptyArchive: true
-                echo "Release v${BUILD_VERSION} complete."
+                echo "Release v${BUILD_VERSION} done."
             }
         }
 
-        // ─────────────────────────────────────────────────────────────────
-        // STAGE 7 – MONITORING & ALERTING
-        // Performs a live health probe of the production containers,
-        // prints a monitoring dashboard (status, CPU, memory, network,
-        // recent logs), and triggers an alert if the API is unreachable –
-        // simulating what Datadog / New Relic would do automatically.
-        // ─────────────────────────────────────────────────────────────────
+        // Stage 7: monitoring. Check both containers are answering and print
+        // health, container status and resource usage. Marks the build unstable
+        // (the alert) if the backend is down.
         stage('Monitoring & Alerting') {
             steps {
-                echo '=== Post-Deployment Monitoring Dashboard ==='
+                echo 'Post-deployment monitoring'
 
                 script {
                     def apiStatus = sh(
@@ -386,51 +356,36 @@ pipeline {
                     def isUp = (apiStatus == '200')
 
                     sh """
-                        echo '╔══════════════════════════════════════════════════╗'
-                        echo '║          COLLABIFY – Monitoring Report           ║'
-                        echo '╚══════════════════════════════════════════════════╝'
-                        echo ''
-                        echo "  Application : ${APP_NAME}"
-                        echo "  Version     : ${BUILD_VERSION}"
-                        echo "  Build       : #${BUILD_NUMBER}"
-                        echo "  Timestamp   : \$(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-                        echo ''
-                        echo '────────────────────────────────────────────────────'
-                        echo '  Health Checks'
-                        echo '────────────────────────────────────────────────────'
-                        echo "  Backend API (HTTP ${apiStatus}) : ${isUp ? '[OK]  UP' : '[ALERT] DOWN'}"
+                        echo "App  : ${APP_NAME} v${BUILD_VERSION} (build #${BUILD_NUMBER})"
+                        echo "Time : \$(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+                        echo ""
+                        echo "Health:"
+                        echo "  Backend  : HTTP ${apiStatus} (${isUp ? 'UP' : 'DOWN'})"
 
                         FRONTEND_CODE=\$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${PROD_FRONTEND_PORT}/ 2>/dev/null || echo '000')
-                        echo "  Frontend     (HTTP \$FRONTEND_CODE) : \$([ "\$FRONTEND_CODE" = "200" ] && echo '[OK]  UP' || echo '[ALERT] DOWN')"
+                        echo "  Frontend : HTTP \$FRONTEND_CODE (\$([ "\$FRONTEND_CODE" = "200" ] && echo 'UP' || echo 'DOWN'))"
 
-                        echo ''
-                        echo '────────────────────────────────────────────────────'
-                        echo '  Container Status'
-                        echo '────────────────────────────────────────────────────'
-                        docker compose -f docker-compose.yml ps 2>/dev/null || echo '  (docker compose status unavailable)'
+                        echo ""
+                        echo "Container status:"
+                        docker compose -f docker-compose.yml ps 2>/dev/null || echo '  (unavailable)'
 
-                        echo ''
-                        echo '────────────────────────────────────────────────────'
-                        echo '  Resource Usage (CPU / Memory / Network)'
-                        echo '────────────────────────────────────────────────────'
+                        echo ""
+                        echo "Resource usage:"
                         docker stats --no-stream \
-                            --format "  {{.Name}}\\t CPU: {{.CPUPerc}}\\t MEM: {{.MemUsage}}\\t NET: {{.NetIO}}" \
+                            --format "  {{.Name}}  CPU: {{.CPUPerc}}  MEM: {{.MemUsage}}  NET: {{.NetIO}}" \
                             \$(docker compose -f docker-compose.yml ps -q 2>/dev/null) 2>/dev/null \
-                            || echo '  (container stats unavailable)'
+                            || echo '  (unavailable)'
 
-                        echo ''
-                        echo '────────────────────────────────────────────────────'
-                        echo '  Recent Application Logs (last 15 lines)'
-                        echo '────────────────────────────────────────────────────'
+                        echo ""
+                        echo "Recent backend logs:"
                         docker compose -f docker-compose.yml logs --tail=15 backend 2>/dev/null || true
-                        echo ''
                     """
 
                     if (!isUp) {
                         currentBuild.result = 'UNSTABLE'
-                        echo "[ALERT] Production API is DOWN (HTTP ${apiStatus}) – alert would fire in Datadog/New Relic"
+                        echo "ALERT: backend is down (HTTP ${apiStatus})"
                     } else {
-                        echo "[OK] All systems nominal – no alerts triggered."
+                        echo 'All services are up.'
                     }
                 }
             }
@@ -438,57 +393,44 @@ pipeline {
 
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // POST – Email notification + workspace cleanup
-    // ─────────────────────────────────────────────────────────────────────
     post {
 
         success {
-            echo "Pipeline SUCCESS: ${APP_NAME} v${BUILD_VERSION} is live."
+            echo "Pipeline passed, ${APP_NAME} v${BUILD_VERSION} is live."
             emailext(
-                subject: "[SUCCESS] ${APP_NAME} Build #${BUILD_NUMBER} – v${BUILD_VERSION} deployed",
+                subject: "[SUCCESS] ${APP_NAME} build #${BUILD_NUMBER} passed",
                 body: """
-                    <h2 style="color:green;">Build Successful</h2>
-                    <table>
-                      <tr><td><b>Application</b></td><td>${APP_NAME}</td></tr>
-                      <tr><td><b>Version</b></td><td>${BUILD_VERSION}</td></tr>
-                      <tr><td><b>Build</b></td><td>#${BUILD_NUMBER}</td></tr>
-                      <tr><td><b>Status</b></td><td style="color:green;"><b>PASSED</b></td></tr>
-                      <tr><td><b>Duration</b></td><td>${currentBuild.durationString}</td></tr>
-                    </table>
-                    <p><a href="${BUILD_URL}">View build in Jenkins</a></p>
+                    <p>Build <b>#${BUILD_NUMBER}</b> completed successfully.</p>
+                    <p>Version: ${BUILD_VERSION}<br>
+                    Duration: ${currentBuild.durationString}</p>
+                    <p><a href="${BUILD_URL}">View in Jenkins</a></p>
                 """,
-                to:       "${NOTIFICATION_EMAIL}",
+                to: "${NOTIFICATION_EMAIL}",
                 mimeType: 'text/html'
             )
         }
 
         failure {
-            echo "Pipeline FAILED at stage: ${env.STAGE_NAME}"
+            echo 'Pipeline failed.'
             sh """
-                echo '=== Failure diagnostics ==='
+                echo 'Failure diagnostics:'
                 docker compose -f docker-compose.staging.yml logs --tail=50 2>/dev/null || true
             """
             emailext(
-                subject: "[FAILURE] ${APP_NAME} Build #${BUILD_NUMBER} – Requires Attention",
+                subject: "[FAILURE] ${APP_NAME} build #${BUILD_NUMBER} failed",
                 body: """
-                    <h2 style="color:red;">Build Failed</h2>
-                    <table>
-                      <tr><td><b>Application</b></td><td>${APP_NAME}</td></tr>
-                      <tr><td><b>Build</b></td><td>#${BUILD_NUMBER}</td></tr>
-                      <tr><td><b>Status</b></td><td style="color:red;"><b>FAILED</b></td></tr>
-                      <tr><td><b>Failed Stage</b></td><td>${env.STAGE_NAME ?: 'Unknown'}</td></tr>
-                      <tr><td><b>Duration</b></td><td>${currentBuild.durationString}</td></tr>
-                    </table>
-                    <p><a href="${BUILD_URL}console">View failure logs in Jenkins</a></p>
+                    <p>Build <b>#${BUILD_NUMBER}</b> failed.</p>
+                    <p>Failed stage: ${env.STAGE_NAME ?: 'Unknown'}<br>
+                    Duration: ${currentBuild.durationString}</p>
+                    <p><a href="${BUILD_URL}console">View logs in Jenkins</a></p>
                 """,
-                to:       "${NOTIFICATION_EMAIL}",
+                to: "${NOTIFICATION_EMAIL}",
                 mimeType: 'text/html'
             )
         }
 
         always {
-            echo 'Cleaning up dangling images older than 24 h...'
+            echo 'Removing dangling images older than 24h'
             sh 'docker image prune -f --filter "until=24h" 2>/dev/null || true'
         }
 
